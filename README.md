@@ -1,2 +1,2 @@
-# typhoon-api
+# Typhoon API
 JSON CMS API
