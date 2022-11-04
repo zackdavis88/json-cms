@@ -4,10 +4,27 @@ import http from 'http';
 import express from 'express';
 import morgan from 'morgan';
 import methodOverride from 'method-override';
-import { Sequelize } from 'sequelize';
+import { Sequelize, Error } from 'sequelize';
 import { PORT } from 'src/config/app';
 import { DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, DB_NAME } from 'src/config/db';
 import { initializeModels } from 'src/models';
+import { configureResponseHandlers } from './utils';
+
+// Extend the types availble on the Express request/response objects.
+declare global {
+  /* eslint-disable-next-line @typescript-eslint/no-namespace */
+  namespace Express {
+    interface Response {
+      fatalError: (message: string | Error) => Response | undefined;
+      validationError: (message: string) => Response | undefined;
+      notFoundError: (message: string) => Response | undefined;
+      authenticationError: (message: string) => Response | undefined;
+      authorizationError: (message: string) => Response | undefined;
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      success: (message: string, data?: any) => Response | undefined;
+    }
+  }
+}
 
 const sequelize = new Sequelize(
   `postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}:${DB_PORT}/${DB_NAME}`,
@@ -26,6 +43,12 @@ initializeModels(sequelize).then(() => {
   app.use(express.json());
   app.use(methodOverride());
   app.use(morgan('dev'));
+
+  // Setup custom response handlers for the app.
+  app.use((_req, res, next) => {
+    configureResponseHandlers(res);
+    next();
+  });
 
   // Build an HTTP or HTTPS server depending on configs available.
   let server;
