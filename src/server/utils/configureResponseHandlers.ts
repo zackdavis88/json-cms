@@ -1,6 +1,14 @@
 import { Response } from 'express';
 import { Error } from 'sequelize';
 
+enum ErrorTypes {
+  FATAL = 'FATAL',
+  VALIDATION = 'VALIDATION',
+  NOT_FOUND = 'NOT_FOUND',
+  AUTHENTICATION = 'AUTHENTICATION',
+  AUTHORIZATION = 'AUTHORIZATION',
+}
+
 /*
   NAME: Fatal Error
   CODE: 500
@@ -10,7 +18,8 @@ import { Error } from 'sequelize';
 const fatalError = (res: Response) => {
   return (message: string | Error) => {
     res.statusCode = 500;
-    if (!res.headersSent) return res.json({ fatalError: message });
+    if (!res.headersSent)
+      return res.json({ error: message, errorType: ErrorTypes.FATAL });
   };
 };
 
@@ -22,7 +31,8 @@ const fatalError = (res: Response) => {
 const validationError = (res: Response) => {
   return (message: string) => {
     res.statusCode = 400;
-    if (!res.headersSent) return res.json({ error: message });
+    if (!res.headersSent)
+      return res.json({ error: message, errorType: ErrorTypes.VALIDATION });
   };
 };
 
@@ -34,7 +44,8 @@ const validationError = (res: Response) => {
 const notFoundError = (res: Response) => {
   return (message: string) => {
     res.statusCode = 404;
-    if (!res.headersSent) return res.json({ error: message });
+    if (!res.headersSent)
+      return res.json({ error: message, errorType: ErrorTypes.NOT_FOUND });
   };
 };
 
@@ -46,7 +57,8 @@ const notFoundError = (res: Response) => {
 const authenticationError = (res: Response) => {
   return (message: string) => {
     res.statusCode = 403;
-    if (!res.headersSent) return res.json({ error: message });
+    if (!res.headersSent)
+      return res.json({ error: message, errorType: ErrorTypes.AUTHENTICATION });
   };
 };
 
@@ -58,7 +70,8 @@ const authenticationError = (res: Response) => {
 const authorizationError = (res: Response) => {
   return (message: string) => {
     res.statusCode = 401;
-    if (!res.headersSent) return res.json({ error: message });
+    if (!res.headersSent)
+      return res.json({ error: message, errorType: ErrorTypes.AUTHORIZATION });
   };
 };
 
