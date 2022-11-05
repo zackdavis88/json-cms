@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { Error } from 'sequelize';
+import { BaseError } from 'sequelize';
 
 enum ErrorTypes {
   FATAL = 'FATAL',
@@ -16,10 +16,10 @@ enum ErrorTypes {
         for an unknown reason.
 */
 const fatalError = (res: Response) => {
-  return (message: string | Error) => {
+  return (message: string, errorDetails?: BaseError) => {
     res.statusCode = 500;
     if (!res.headersSent)
-      return res.json({ error: message, errorType: ErrorTypes.FATAL });
+      return res.json({ error: message, errorType: ErrorTypes.FATAL, errorDetails });
   };
 };
 
