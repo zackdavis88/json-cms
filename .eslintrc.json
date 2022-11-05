@@ -14,7 +14,10 @@
     "indent": ["error", 2, { "SwitchCase": 1, "ignoredNodes": ["TemplateLiteral > *"] }],
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "single"],
-    "semi": ["error", "always"]
+    "semi": ["error", "always"],
+    // Note: you must disable the base rule as it can report incorrect errors
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error"
   },
   "ignorePatterns": []
 }

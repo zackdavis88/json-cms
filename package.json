@@ -7,7 +7,7 @@
     "build:prod": "tsc && babel dist --out-dir dist",
     "prestart:prod": "npm run build:prod",
     "start:prod": "node .",
-    "start:dev": "nodemon --watch 'src/*' --ext 'ts,json' --ignore 'test/*' --exec 'node -r tsconfig-paths/register -r ts-node/register src/server/server.ts'"
+    "start:dev": "nodemon --watch 'src/*' --ext 'ts,json' --ignore 'test/*' --exec 'eslint --ext .ts src/*/** && node -r tsconfig-paths/register -r ts-node/register src/server/server.ts'"
   },
   "repository": {
     "type": "git",
