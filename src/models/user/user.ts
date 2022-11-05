@@ -12,6 +12,7 @@ import {
 
 class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<string>;
+  declare isActive: CreationOptional<boolean>;
   declare username: string;
   declare displayName: string;
   declare hash: string;
@@ -36,6 +37,10 @@ export const initializeUser = (sequelize: Sequelize) => {
         type: DataTypes.UUID,
         primaryKey: true,
         defaultValue: DataTypes.UUIDV4,
+      },
+      isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
       },
       username: {
         type: DataTypes.STRING,
