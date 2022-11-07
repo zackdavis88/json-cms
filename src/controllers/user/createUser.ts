@@ -11,14 +11,20 @@ const create = async (req: Request, res: Response) => {
   const { username, password }: UserCreateBody = req.body;
 
   try {
-    await User.create({
+    const newUser = await User.create({
       username: username.toLowerCase(),
       displayName: username,
       hash: User.generateHash(password),
       createdOn: new Date(),
     });
 
-    res.success('user successfully created');
+    const userData = {
+      displayName: newUser.displayName,
+      username: newUser.username,
+      createdOn: newUser.createdOn,
+    };
+
+    res.success('user has been successfully created', { user: userData });
   } catch (error) {
     /*
       The user table has a unique constraint on username. There is a small

@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { BaseError } from 'sequelize';
 
-enum ErrorTypes {
+export enum ErrorTypes {
   FATAL = 'FATAL',
   VALIDATION = 'VALIDATION',
   NOT_FOUND = 'NOT_FOUND',

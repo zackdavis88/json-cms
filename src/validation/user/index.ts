@@ -1,4 +1,4 @@
-import { default as createValidation } from './createUserValidation';
+import { default as createValidation } from './createUser';
 
 export default {
   create: createValidation,
