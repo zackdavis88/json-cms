@@ -67,7 +67,7 @@ export class TestHelper {
       createdOn: new Date(),
     });
 
-    this.testUsernames = this.testUsernames.concat(testUser.username);
+    this.addTestUsername(testUser.username);
     return testUser;
   }
 }
