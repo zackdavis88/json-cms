@@ -104,6 +104,6 @@ dist
 .tern-port
 
 # Private config files
-config/db.ts
-config/auth.ts
-config/ssl
+src/config/db.ts
+src/config/auth.ts
+src/config/ssl
