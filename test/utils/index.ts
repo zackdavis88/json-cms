@@ -8,7 +8,7 @@ import {
   DB_NAME,
 } from '../../src/config/db';
 import { PORT } from '../../src/config/app';
-import { initializeUser, User } from '../../src/models/user';
+import { initializeModels, User } from '../../src/models';
 
 export class TestHelper {
   sequelize: Sequelize;
@@ -23,7 +23,7 @@ export class TestHelper {
         },
       );
 
-      await initializeUser(this.sequelize);
+      await initializeModels(this.sequelize);
     };
     connectToDatabase();
     this.testUsernames = [];

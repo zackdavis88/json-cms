@@ -1,10 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { initializeUser } from './user';
 
-export { User } from './user';
-export const initializeModels = async (sequelize: Sequelize) => {
-  initializeUser(sequelize);
-
+const synchronizeTables = async (sequelize: Sequelize) => {
   try {
     await sequelize.sync();
   } catch (error) {
@@ -13,3 +10,14 @@ export const initializeModels = async (sequelize: Sequelize) => {
     throw error;
   }
 };
+
+export const initializeModels = (sequelize: Sequelize) => {
+  initializeUser(sequelize);
+};
+
+export const initializeModelsAndSync = async (sequelize: Sequelize) => {
+  initializeModels(sequelize);
+  await synchronizeTables(sequelize);
+};
+
+export { User } from './user';

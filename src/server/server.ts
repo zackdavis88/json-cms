@@ -7,7 +7,7 @@ import methodOverride from 'method-override';
 import { Sequelize, BaseError } from 'sequelize';
 import { PORT } from 'src/config/app';
 import { DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, DB_NAME } from 'src/config/db';
-import { initializeModels } from 'src/models';
+import { initializeModelsAndSync } from 'src/models';
 import { configureRoutes } from 'src/routes';
 import { configureResponseHandlers } from './utils';
 
@@ -34,7 +34,7 @@ const sequelize = new Sequelize(
   },
 );
 
-initializeModels(sequelize).then(() => {
+initializeModelsAndSync(sequelize).then(() => {
   const app = express();
   app.use(
     express.urlencoded({
