@@ -25,7 +25,7 @@ export const generateToken = async (req: Request, res: Response) => {
     }
 
     const tokenData = {
-      _id: user.id,
+      id: user.id,
       apiKey: user.apiKey,
     };
 

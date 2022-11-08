@@ -7,7 +7,7 @@ import methodOverride from 'method-override';
 import { Sequelize, BaseError } from 'sequelize';
 import { PORT } from 'src/config/app';
 import { DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, DB_NAME } from 'src/config/db';
-import { initializeModelsAndSync } from 'src/models';
+import { initializeModelsAndSync, User } from 'src/models';
 import { configureRoutes } from 'src/routes';
 import { configureResponseHandlers } from './utils';
 
@@ -17,6 +17,8 @@ declare global {
   namespace Express {
     interface Request {
       credentials: string[];
+      tokenData: { id: string; apiKey: string };
+      user: User;
     }
     interface Response {
       fatalError: (message: string, errorDetails?: BaseError) => Response | undefined;
