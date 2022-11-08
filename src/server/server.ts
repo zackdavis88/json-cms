@@ -15,6 +15,9 @@ import { configureResponseHandlers } from './utils';
 declare global {
   /* eslint-disable-next-line @typescript-eslint/no-namespace */
   namespace Express {
+    interface Request {
+      credentials: string[];
+    }
     interface Response {
       fatalError: (message: string, errorDetails?: BaseError) => Response | undefined;
       validationError: (message: string) => Response | undefined;
