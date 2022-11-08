@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from 'src/models';
+import { DatabaseError } from 'sequelize';
 
 export const authenticateToken = async (
   req: Request,
@@ -24,6 +25,10 @@ export const authenticateToken = async (
     req.user = user;
     next();
   } catch (error) {
+    if (error instanceof DatabaseError) {
+      return res.validationError('x-auth-token contains an invalid value');
+    }
+
     return res.fatalError('fatal error while authenitcating token');
   }
 };
