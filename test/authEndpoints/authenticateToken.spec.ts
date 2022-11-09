@@ -7,7 +7,7 @@ const testHelper = new TestHelper();
 const serverUrl = testHelper.getServerUrl();
 const apiRoute = '/auth/token';
 
-describe('[Auth] Generate Token', () => {
+describe('[Auth] Authenticate Token', () => {
   describe(`GET ${apiRoute}`, () => {
     let testUser: User;
     const testPassword = 'Password:1:';
