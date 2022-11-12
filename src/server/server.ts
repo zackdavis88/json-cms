@@ -16,8 +16,6 @@ declare global {
   /* eslint-disable-next-line @typescript-eslint/no-namespace */
   namespace Express {
     interface Request {
-      credentials: string[];
-      tokenData: { id: string; apiKey: string };
       user: User;
     }
     interface Response {
