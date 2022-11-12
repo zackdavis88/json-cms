@@ -1,4 +1,4 @@
-import { default as create } from './createUser';
+import { create } from './create';
 
 export default {
   create,

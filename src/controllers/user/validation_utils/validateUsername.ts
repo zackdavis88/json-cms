@@ -1,9 +1,8 @@
-import { isMissing } from 'src/validation/utils';
 import { User } from 'src/models';
 import { BaseError } from 'sequelize';
 
 export const validateUsername = async (username: unknown) => {
-  if (isMissing(username)) {
+  if (username === null || username === undefined) {
     return 'username is missing from input';
   }
 

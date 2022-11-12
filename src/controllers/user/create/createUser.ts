@@ -1,14 +1,19 @@
 import { Request, Response } from 'express';
 import { BaseError, UniqueConstraintError } from 'sequelize';
 import { User } from 'src/models';
-
-interface UserCreateBody {
-  username: string;
-  password: string;
-}
+import createUserValidation from './createUserValidation';
 
 const create = async (req: Request, res: Response) => {
-  const { username, password }: UserCreateBody = req.body;
+  const { username, password } = req.body;
+
+  try {
+    const validationError = await createUserValidation(username, password);
+    if (validationError) {
+      return res.validationError(validationError);
+    }
+  } catch (error) {
+    return res.fatalError('fatal error while validating user create input');
+  }
 
   try {
     const newUser = await User.create({
@@ -19,12 +24,14 @@ const create = async (req: Request, res: Response) => {
     });
 
     const userData = {
-      displayName: newUser.displayName,
-      username: newUser.username,
-      createdOn: newUser.createdOn,
+      user: {
+        displayName: newUser.displayName,
+        username: newUser.username,
+        createdOn: newUser.createdOn,
+      },
     };
 
-    res.success('user has been successfully created', { user: userData });
+    res.success('user has been successfully created', userData);
   } catch (error) {
     /*
       The user table has a unique constraint on username. There is a small
