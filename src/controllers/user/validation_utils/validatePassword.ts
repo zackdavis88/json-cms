@@ -1,7 +1,5 @@
-import { isMissing } from 'src/validation/utils';
-
 export const validatePassword = async (password: unknown) => {
-  if (isMissing(password)) {
+  if (password === null || password === undefined) {
     return 'password is missing from input';
   }
 

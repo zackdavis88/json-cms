@@ -1,13 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from 'src/models';
 import { DatabaseError } from 'sequelize';
+import authenticateTokenValidation from './authenticateTokenValidation';
 
-export const authenticateToken = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const { id, apiKey } = req.tokenData;
+const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
+  const header = req.headers['x-auth-token']
+    ? req.headers['x-auth-token'].toString()
+    : '';
+
+  const { validationError, tokenData } = authenticateTokenValidation(header);
+  if (validationError) {
+    return res.validationError(validationError);
+  }
+
+  const { id = '', apiKey = '' } = tokenData || {};
 
   try {
     const user = await User.findOne({
@@ -32,3 +38,5 @@ export const authenticateToken = async (
     return res.fatalError('fatal error while authenitcating token');
   }
 };
+
+export default authenticateToken;

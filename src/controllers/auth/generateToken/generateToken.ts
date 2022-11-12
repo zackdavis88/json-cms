@@ -3,10 +3,19 @@ import jwt from 'jsonwebtoken';
 import { BaseError } from 'sequelize';
 import { User } from 'src/models';
 import { SECRET } from 'src/config/auth';
+import generateTokenValidation from './generateTokenValidation';
 
-export const generateToken = async (req: Request, res: Response) => {
-  const { credentials } = req;
-  const [username, password] = credentials;
+const generateToken = async (req: Request, res: Response) => {
+  const header = req.headers['x-auth-basic']
+    ? req.headers['x-auth-basic'].toString()
+    : '';
+
+  const { validationError, credentials } = generateTokenValidation(header);
+  if (validationError) {
+    return res.validationError(validationError);
+  }
+
+  const { username = '', password = '' } = credentials || {};
 
   try {
     const user = await User.findOne({
@@ -32,17 +41,21 @@ export const generateToken = async (req: Request, res: Response) => {
     const jwtOptions = { expiresIn: '10h' };
     const token = jwt.sign(tokenData, SECRET, jwtOptions);
     const userData = {
-      username: user.username,
-      displayName: user.displayName,
-      createdOn: user.createdOn,
-      updatedOn: user.updatedOn,
+      user: {
+        username: user.username,
+        displayName: user.displayName,
+        createdOn: user.createdOn,
+        updatedOn: user.updatedOn,
+      },
     };
 
     res.set('x-auth-token', token);
-    res.success('user successfully authenticated', { user: userData });
+    res.success('user successfully authenticated', userData);
   } catch (error) {
     if (error instanceof BaseError) {
       return res.fatalError('fatal error while generating token', error);
     }
   }
 };
+
+export default generateToken;
