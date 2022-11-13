@@ -1,0 +1,1 @@
+export { paginationValidation } from './paginationValidation';
