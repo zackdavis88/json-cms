@@ -1,7 +1,7 @@
 {
-  "name": "typhoon-api",
+  "name": "json-cms",
   "version": "0.0.1",
-  "description": "JSON CMS API",
+  "description": "JSON CMS",
   "main": "dist/server/server.js",
   "scripts": {
     "build:prod": "tsc && babel dist --out-dir dist",
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zackdavis88/typhoon-api.git"
+    "url": "git+https://github.com/zackdavis88/json-cms.git"
   },
   "author": "Zack Davis",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/zackdavis88/typhoon-api/issues"
+    "url": "https://github.com/zackdavis88/json-cms/issues"
   },
-  "homepage": "https://github.com/zackdavis88/typhoon-api#readme",
+  "homepage": "https://github.com/zackdavis88/json-cms#readme",
   "devDependencies": {
     "@babel/cli": "^7.19.3",
     "@babel/core": "^7.19.6",
