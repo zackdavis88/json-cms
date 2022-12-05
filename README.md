@@ -1,2 +1,3 @@
-# Typhoon API
-JSON CMS API
+# JSON CMS
+
+JSON CMS

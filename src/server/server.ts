@@ -83,7 +83,7 @@ initializeModelsAndSync(sequelize).then(() => {
 
   server.listen(PORT, () => {
     console.log(
-      'Typhoon API listening on port %s using %s protocol',
+      'JSON CMS listening on port %s using %s protocol',
       PORT,
       useHttps ? 'https' : 'http',
     );
