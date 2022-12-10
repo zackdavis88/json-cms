@@ -87,7 +87,7 @@ npm run start:prod
 
 ## Test Suite
 
-JSON CMS comes with unit tests that validate end-to-end functionality for each endpoint.
+JSON CMS comes with unit tests that validate full endpoint functionality.
 
 1. In one terminal start the JSON CMS API.
 
