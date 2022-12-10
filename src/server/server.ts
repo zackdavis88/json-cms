@@ -17,6 +17,7 @@ declare global {
   namespace Express {
     interface Request {
       user: User;
+      requestedUser: User;
     }
     interface Response {
       fatalError: (message: string, errorDetails?: BaseError) => Response | undefined;

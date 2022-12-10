@@ -62,7 +62,7 @@ export class TestHelper {
     this.testUsernames = [];
   }
 
-  async createTestUser(password: string) {
+  async createTestUser(password = 'Password1') {
     const uuid = this.generateUUID();
     let username = '';
     if (typeof uuid === 'string') {

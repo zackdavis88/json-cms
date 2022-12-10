@@ -6,4 +6,9 @@ export const userRoutes = (router: Router) => {
     .route('/users')
     .post(UserController.create)
     .get(AuthController.authenticateToken, UserController.getAll);
+
+  router
+    .route('/users/:username')
+    .all(AuthController.authenticateToken, UserController.getRequestedUser)
+    .get(UserController.getOne);
 };
