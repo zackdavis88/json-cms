@@ -1,1 +1,1 @@
-export { default as getOne, getRequestedUser } from './getOneUser';
+export { default as getOne } from './getOneUser';

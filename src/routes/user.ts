@@ -9,8 +9,8 @@ export const userRoutes = (router: Router) => {
 
   router
     .route('/users/:username')
-    .all(AuthController.authenticateToken, UserController.getRequestedUser)
+    .all(AuthController.authenticateToken)
     .get(UserController.getOne)
     .post(AuthController.authorizeUserUpdate, UserController.update)
-    .delete(AuthController.authorizeUserUpdate);
+    .delete(AuthController.authorizeUserUpdate, UserController.remove);
 };

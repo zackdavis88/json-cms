@@ -46,22 +46,6 @@ describe('[User] Update', () => {
       );
     });
 
-    it('should reject requests when the user is not found', (done) => {
-      // adding $impossible to the url should work because a valid user
-      // cannot have special characters in its username
-      request(serverUrl)
-        .post(`${apiRoute}$impossible`)
-        .set('x-auth-token', authToken)
-        .expect(
-          404,
-          {
-            error: 'requested user not found',
-            errorType: ErrorTypes.NOT_FOUND,
-          },
-          done,
-        );
-    });
-
     it('should not allow users to update other user accounts', (done) => {
       apiRoute = `/users/${testUser.username}`;
       request(serverUrl).post(apiRoute).set('x-auth-token', authToken).expect(

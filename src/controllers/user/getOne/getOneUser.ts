@@ -1,12 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { User } from 'src/models';
 import getOneUserValidation from './getOneUserValidation';
 
-export const getRequestedUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const getOneUser = async (req: Request, res: Response) => {
   const username = req.params.username;
   try {
     const user = await getOneUserValidation(username);
@@ -14,24 +10,18 @@ export const getRequestedUser = async (
       return res.notFoundError(user);
     }
 
-    req.requestedUser = user;
-    next();
+    const userData = {
+      user: {
+        displayName: user.displayName,
+        username: user.username,
+        createdOn: user.createdOn,
+      },
+    };
+
+    res.success('user has been successfully retrieved', userData);
   } catch (error) {
     return res.fatalError('fatal error while getting user');
   }
-};
-
-const getOneUser = async (req: Request, res: Response) => {
-  const requestedUser = req.requestedUser;
-  const userData = {
-    user: {
-      displayName: requestedUser.displayName,
-      username: requestedUser.username,
-      createdOn: requestedUser.createdOn,
-    },
-  };
-
-  res.success('user has been successfully retrieved', userData);
 };
 
 export default getOneUser;
