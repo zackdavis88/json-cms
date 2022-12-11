@@ -20,7 +20,6 @@ const create = async (req: Request, res: Response) => {
       username: username.toLowerCase(),
       displayName: username,
       hash: User.generateHash(password),
-      createdOn: new Date(),
     });
 
     const userData = {

@@ -5,8 +5,6 @@ import {
   InferCreationAttributes,
   CreationOptional,
   DataTypes,
-  NonAttribute,
-  Association,
   HasManyCreateAssociationMixin,
   HasManyGetAssociationsMixin,
 } from 'sequelize';
@@ -23,11 +21,6 @@ class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Pr
 
   declare createMembership: HasManyCreateAssociationMixin<Membership>;
   declare getMemberships: HasManyGetAssociationsMixin<Membership>;
-
-  declare memberships?: NonAttribute<Membership[]>;
-  declare static associations: {
-    memberships: Association<Project, Membership>;
-  };
 }
 
 export const initializeProject = (sequelize: Sequelize) => {

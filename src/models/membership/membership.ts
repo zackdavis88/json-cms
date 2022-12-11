@@ -6,7 +6,6 @@ import {
   CreationOptional,
   DataTypes,
   ForeignKey,
-  NonAttribute,
   BelongsToGetAssociationMixin,
 } from 'sequelize';
 import User from 'src/models/user/user';
@@ -17,24 +16,18 @@ class Membership extends Model<
   InferCreationAttributes<Membership>
 > {
   declare id: CreationOptional<string>;
-
   declare userId: ForeignKey<User['id']>;
-  declare user?: NonAttribute<User>;
-
   declare projectId: ForeignKey<Project['id']>;
-  declare project?: NonAttribute<Project>;
-
-  declare getUser: BelongsToGetAssociationMixin<User>;
-  declare getProject: BelongsToGetAssociationMixin<Project>;
-
   declare isProjectAdmin: CreationOptional<boolean>;
   declare isBlueprintManager: CreationOptional<boolean>;
   declare isComponentManager: CreationOptional<boolean>;
   declare isLayoutManager: CreationOptional<boolean>;
   declare isFragmentManager: CreationOptional<boolean>;
-
   declare createdOn: CreationOptional<Date>;
   declare updatedOn: CreationOptional<Date> | null;
+
+  declare getUser: BelongsToGetAssociationMixin<User>;
+  declare getProject: BelongsToGetAssociationMixin<Project>;
 }
 
 export const initializeMembership = (sequelize: Sequelize) => {
