@@ -1,5 +1,3 @@
-import bcrypt from 'bcryptjs';
-import { SALT_ROUNDS } from 'src/config/auth';
 import {
   Model,
   Sequelize,
@@ -9,39 +7,31 @@ import {
   DataTypes,
   NonAttribute,
   Association,
+  HasManyCreateAssociationMixin,
   HasManyGetAssociationsMixin,
 } from 'sequelize';
 import Membership from 'src/models/membership/membership';
 
-class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Project>> {
   declare id: CreationOptional<string>;
   declare isActive: CreationOptional<boolean>;
-  declare username: string;
-  declare displayName: string;
-  declare hash: string;
-  declare apiKey: CreationOptional<string>;
-  declare createdOn: Date;
+  declare name: string;
+  declare description: CreationOptional<string> | null;
+  declare createdOn: CreationOptional<Date>;
   declare updatedOn: CreationOptional<Date> | null;
   declare deletedOn: CreationOptional<Date> | null;
 
+  declare createMembership: HasManyCreateAssociationMixin<Membership>;
   declare getMemberships: HasManyGetAssociationsMixin<Membership>;
 
   declare memberships?: NonAttribute<Membership[]>;
   declare static associations: {
-    memberships: Association<User, Membership>;
+    memberships: Association<Project, Membership>;
   };
-
-  static generateHash(password: string): NonAttribute<string> {
-    return bcrypt.hashSync(password, SALT_ROUNDS);
-  }
-
-  compareHash(password: string): NonAttribute<boolean> {
-    return bcrypt.compareSync(password, this.hash);
-  }
 }
 
-export const initializeUser = (sequelize: Sequelize) => {
-  User.init(
+export const initializeProject = (sequelize: Sequelize) => {
+  Project.init(
     {
       id: {
         type: DataTypes.UUID,
@@ -52,19 +42,11 @@ export const initializeUser = (sequelize: Sequelize) => {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
-      username: {
-        type: DataTypes.STRING,
-        unique: true,
-      },
-      displayName: {
+      name: {
         type: DataTypes.STRING,
       },
-      hash: {
+      description: {
         type: DataTypes.STRING,
-      },
-      apiKey: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
       },
       createdOn: {
         type: DataTypes.DATE,
@@ -79,10 +61,10 @@ export const initializeUser = (sequelize: Sequelize) => {
     },
     {
       sequelize,
-      tableName: 'users',
+      tableName: 'projects',
       timestamps: false,
     },
   );
 };
 
-export default User;
+export default Project;
