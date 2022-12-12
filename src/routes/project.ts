@@ -7,4 +7,9 @@ export const projectRoutes = (router: Router) => {
     .all(AuthController.authenticateToken)
     .post(ProjectController.create)
     .get(ProjectController.getAll);
+
+  router
+    .route('/projects/:projectId')
+    .all(AuthController.authenticateToken, ProjectController.getRequestedProject)
+    .get(ProjectController.getOne);
 };

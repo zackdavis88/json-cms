@@ -7,6 +7,7 @@ import {
   DataTypes,
   HasManyCreateAssociationMixin,
   HasManyGetAssociationsMixin,
+  HasManyCountAssociationsMixin,
 } from 'sequelize';
 import Membership from 'src/models/membership/membership';
 
@@ -21,6 +22,7 @@ class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Pr
 
   declare createMembership: HasManyCreateAssociationMixin<Membership>;
   declare getMemberships: HasManyGetAssociationsMixin<Membership>;
+  declare countMemberships: HasManyCountAssociationsMixin;
 }
 
 export const initializeProject = (sequelize: Sequelize) => {

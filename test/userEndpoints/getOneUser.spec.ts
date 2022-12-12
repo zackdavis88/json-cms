@@ -56,7 +56,9 @@ describe('[User] Get One', () => {
         .set('x-auth-token', authToken)
         .expect(200)
         .end((err, res) => {
-          if (err) return done(err);
+          if (err) {
+            return done(err);
+          }
 
           const { message, user } = res.body;
           assert.strictEqual(message, 'user has been successfully retrieved');
