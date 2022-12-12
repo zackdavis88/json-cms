@@ -5,5 +5,6 @@ export const projectRoutes = (router: Router) => {
   router
     .route('/projects')
     .all(AuthController.authenticateToken)
-    .post(ProjectController.create);
+    .post(ProjectController.create)
+    .get(ProjectController.getAll);
 };
