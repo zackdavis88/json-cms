@@ -10,7 +10,7 @@ import {
 } from '../../src/config/db';
 import { PORT } from '../../src/config/app';
 import { SECRET } from '../../src/config/auth';
-import { initializeModels, User } from '../../src/models';
+import { initializeModels, User, Project, Membership } from '../../src/models';
 
 interface TokenDataOverride {
   id?: string;
@@ -22,6 +22,7 @@ interface TokenDataOverride {
 export class TestHelper {
   sequelize: Sequelize;
   testUsernames: string[];
+  testProjectIds: string[];
 
   constructor() {
     const connectToDatabase = async () => {
@@ -36,6 +37,7 @@ export class TestHelper {
     };
     connectToDatabase();
     this.testUsernames = [];
+    this.testProjectIds = [];
   }
 
   getServerUrl() {
@@ -53,9 +55,18 @@ export class TestHelper {
     this.testUsernames = this.testUsernames.concat(testUsername);
   }
 
+  addTestProjectId(testProjectId: string) {
+    this.testProjectIds = this.testProjectIds.concat(testProjectId);
+  }
+
   async removeTestData() {
     if (this.testUsernames.length) {
       await User.destroy({ where: { username: this.testUsernames } });
+    }
+
+    if (this.testProjectIds.length) {
+      await Membership.destroy({ where: { projectId: this.testProjectIds } });
+      await Project.destroy({ where: { id: this.testProjectIds } });
     }
 
     await this.sequelize.close();
