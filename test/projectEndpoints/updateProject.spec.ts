@@ -218,7 +218,6 @@ describe('[Project] Update', () => {
           }
 
           const { message, project } = res.body;
-          console.log(message);
           assert.strictEqual(message, 'project has been successfully updated');
           assert(project);
           assert.strictEqual(project.id, testProject.id);

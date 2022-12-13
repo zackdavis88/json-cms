@@ -13,5 +13,5 @@ export const projectRoutes = (router: Router) => {
     .all(AuthController.authenticateToken, ProjectController.getRequestedProject)
     .get(ProjectController.getOne)
     .post(AuthController.authorizeProjectUpdate, ProjectController.update)
-    .delete(AuthController.authorizeProjectUpdate);
+    .delete(AuthController.authorizeProjectUpdate, ProjectController.remove);
 };
