@@ -113,7 +113,9 @@ describe('[User] Remove', () => {
         .send(payload)
         .expect(200)
         .end((err, res) => {
-          if (err) return done(err);
+          if (err) {
+            return done(err);
+          }
 
           const { message, user } = res.body;
           assert.strictEqual(message, 'user has been successfully removed');
@@ -125,7 +127,9 @@ describe('[User] Remove', () => {
           // Validate that isActive is set to false in the database.
           User.findOne({ where: { username: authTokenUser.username } }).then(
             (userInDatabase) => {
-              if (!userInDatabase) return done('user not found');
+              if (!userInDatabase) {
+                return done('user not found');
+              }
               assert.strictEqual(user.deletedOn, userInDatabase.deletedOn?.toISOString());
               assert.strictEqual(userInDatabase.isActive, false);
               done();

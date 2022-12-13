@@ -18,8 +18,9 @@ export enum ErrorTypes {
 const fatalError = (res: Response) => {
   return (message: string, errorDetails?: BaseError) => {
     res.statusCode = 500;
-    if (!res.headersSent)
+    if (!res.headersSent) {
       return res.json({ error: message, errorType: ErrorTypes.FATAL, errorDetails });
+    }
   };
 };
 
@@ -31,8 +32,9 @@ const fatalError = (res: Response) => {
 const validationError = (res: Response) => {
   return (message: string) => {
     res.statusCode = 400;
-    if (!res.headersSent)
+    if (!res.headersSent) {
       return res.json({ error: message, errorType: ErrorTypes.VALIDATION });
+    }
   };
 };
 
@@ -44,8 +46,9 @@ const validationError = (res: Response) => {
 const notFoundError = (res: Response) => {
   return (message: string) => {
     res.statusCode = 404;
-    if (!res.headersSent)
+    if (!res.headersSent) {
       return res.json({ error: message, errorType: ErrorTypes.NOT_FOUND });
+    }
   };
 };
 
@@ -57,8 +60,9 @@ const notFoundError = (res: Response) => {
 const authenticationError = (res: Response) => {
   return (message: string) => {
     res.statusCode = 403;
-    if (!res.headersSent)
+    if (!res.headersSent) {
       return res.json({ error: message, errorType: ErrorTypes.AUTHENTICATION });
+    }
   };
 };
 
@@ -70,8 +74,9 @@ const authenticationError = (res: Response) => {
 const authorizationError = (res: Response) => {
   return (message: string) => {
     res.statusCode = 401;
-    if (!res.headersSent)
+    if (!res.headersSent) {
       return res.json({ error: message, errorType: ErrorTypes.AUTHORIZATION });
+    }
   };
 };
 
@@ -83,7 +88,9 @@ const authorizationError = (res: Response) => {
 const success = (res: Response) => {
   return (message: string, data = {}) => {
     res.statusCode = 200;
-    if (!res.headersSent) return res.json({ message, ...data });
+    if (!res.headersSent) {
+      return res.json({ message, ...data });
+    }
   };
 };
 
