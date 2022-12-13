@@ -20,7 +20,11 @@ const updateProject = async (req: Request, res: Response) => {
   }
 
   project.updatedOn = new Date();
-  await project.save();
+  try {
+    await project.save();
+  } catch (error) {
+    return res.fatalError('fatal error while updating project');
+  }
 
   const projectData = {
     project: {

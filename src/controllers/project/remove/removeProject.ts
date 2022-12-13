@@ -11,7 +11,11 @@ const removeProject = async (req: Request, res: Response) => {
 
   project.isActive = false;
   project.deletedOn = new Date();
-  await project.save();
+  try {
+    await project.save();
+  } catch (error) {
+    return res.fatalError('fatal error while removing project');
+  }
 
   const projectData = {
     project: {

@@ -36,18 +36,22 @@ export const getRequestedProject = async (
 
 const getOneProject = async (req: Request, res: Response) => {
   const project = req.requestedProject;
-  const projectData = {
-    project: {
-      id: project.id,
-      name: project.name,
-      description: project.description,
-      createdOn: project.createdOn,
-      updatedOn: project.updatedOn,
-      membershipsCount: await project.countMemberships(),
-    },
-  };
+  try {
+    const projectData = {
+      project: {
+        id: project.id,
+        name: project.name,
+        description: project.description,
+        createdOn: project.createdOn,
+        updatedOn: project.updatedOn,
+        membershipsCount: await project.countMemberships(),
+      },
+    };
 
-  res.success('project has been successfully retrieved', projectData);
+    res.success('project has been successfully retrieved', projectData);
+  } catch (error) {
+    res.fatalError('fatal error while getting project');
+  }
 };
 
 export default getOneProject;
