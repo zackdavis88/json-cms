@@ -11,5 +11,7 @@ export const projectRoutes = (router: Router) => {
   router
     .route('/projects/:projectId')
     .all(AuthController.authenticateToken, ProjectController.getRequestedProject)
-    .get(ProjectController.getOne);
+    .get(ProjectController.getOne)
+    .post(AuthController.authorizeProjectUpdate, ProjectController.update)
+    .delete(AuthController.authorizeProjectUpdate);
 };
