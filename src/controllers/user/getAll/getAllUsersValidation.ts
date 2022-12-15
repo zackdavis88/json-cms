@@ -1,8 +1,6 @@
 import { Request } from 'express';
 import { User } from 'src/models';
-import { paginationValidation } from 'src/controllers/validation_utils';
-
-export type PaginationData = ReturnType<typeof paginationValidation>;
+import { paginationValidation, PaginationData } from 'src/controllers/validation_utils';
 
 type GetAllUsersValidation = (queryString: Request['query']) => Promise<PaginationData>;
 

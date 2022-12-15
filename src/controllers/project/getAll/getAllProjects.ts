@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Project } from 'src/models';
-import getAllProjectsValidation, { PaginationData } from './getAllProjectsValidation';
+import { PaginationData } from 'src/controllers/validation_utils';
+import getAllProjectsValidation from './getAllProjectsValidation';
 
 const getAllProjects = async (req: Request, res: Response) => {
   let paginationData: PaginationData;

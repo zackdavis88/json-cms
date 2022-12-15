@@ -4,10 +4,7 @@ import { AuthController, MembershipController, ProjectController } from 'src/con
 export const membershipRoutes = (router: Router) => {
   router
     .route('/projects/:projectId/memberships')
-    .all(
-      AuthController.authenticateToken,
-      ProjectController.getRequestedProject,
-      AuthController.authorizeProjectUpdate,
-    )
-    .post(MembershipController.create);
+    .all(AuthController.authenticateToken, ProjectController.getRequestedProject)
+    .post(AuthController.authorizeProjectUpdate, MembershipController.create)
+    .get(MembershipController.getAll);
 };
