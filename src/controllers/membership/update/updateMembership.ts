@@ -5,7 +5,7 @@ const updateMembership = async (req: Request, res: Response) => {
   try {
     const membership = req.requestedMembership;
     const project = req.requestedProject;
-    const user = await membership.getUser();
+    const user = membership.user;
     const {
       isProjectAdmin,
       isBlueprintManager,
