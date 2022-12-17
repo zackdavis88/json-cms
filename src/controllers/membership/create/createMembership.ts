@@ -39,6 +39,7 @@ const createMembership = async (req: Request, res: Response) => {
       id: membership.id,
       user: {
         username: user?.username,
+        displayName: user?.displayName,
       },
       project: {
         id: project.id,

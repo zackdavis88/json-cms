@@ -36,6 +36,7 @@ const getAllMemberships = async (req: Request, res: Response) => {
         createdOn: membership.createdOn,
         user: {
           username: membership.user.username,
+          displayName: membership.user.displayName,
         },
         isProjectAdmin: membership.isProjectAdmin,
         isBlueprintManager: membership.isBlueprintManager,

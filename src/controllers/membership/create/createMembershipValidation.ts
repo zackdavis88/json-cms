@@ -63,13 +63,15 @@ const createMembershipValidation: CreateMembershipValidation = async (
   }
 
   // Since this is for creation, lets ensure that a membership does not already exist for the user.
-  const memberships = await project.getMemberships({
-    where: {
-      userId: usernameValidationResult.id,
-    },
-  });
+  const membership = (
+    await project.getMemberships({
+      where: {
+        userId: usernameValidationResult.id,
+      },
+    })
+  )[0];
 
-  if (memberships.length !== 0) {
+  if (membership) {
     return { validationError: 'membership already exists' };
   }
   return { validationError: '', user: usernameValidationResult };

@@ -113,6 +113,7 @@ describe('[Membership] Get All', () => {
           );
           assert(membership.user);
           assert.strictEqual(membership.user.username, memberUser.username);
+          assert.strictEqual(membership.user.displayName, memberUser.displayName);
           assert.strictEqual(membership.isProjectAdmin, false);
           assert.strictEqual(membership.isBlueprintManager, false);
           assert.strictEqual(membership.isLayoutManager, false);

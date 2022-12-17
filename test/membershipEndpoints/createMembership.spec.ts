@@ -268,6 +268,10 @@ describe('[Membership] Create', () => {
             assert(membership.id);
             assert(membership.user);
             assert.strictEqual(membership.user.username, notAuthorizedUser.username);
+            assert.strictEqual(
+              membership.user.displayName,
+              notAuthorizedUser.displayName,
+            );
             assert(membership.project);
             assert.strictEqual(membership.project.id, testProject.id);
             assert.strictEqual(membership.project.name, testProject.name);
