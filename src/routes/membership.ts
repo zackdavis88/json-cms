@@ -16,6 +16,6 @@ export const membershipRoutes = (router: Router) => {
       MembershipController.getRequestedMembership,
     )
     .get(MembershipController.getOne)
-    .post()
-    .delete();
+    .post(AuthController.authorizeProjectUpdate, MembershipController.update)
+    .delete(AuthController.authorizeProjectUpdate);
 };
