@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Project } from 'src/models';
+import { uuidValidation } from 'src/controllers/validation_utils';
 
 export const getRequestedProject = async (
   req: Request,
@@ -8,11 +9,9 @@ export const getRequestedProject = async (
 ) => {
   const projectId = req.params.projectId;
 
-  // Found this regex online for validating UUIDv4
-  const uuidRegex =
-    /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
-  if (!uuidRegex.test(projectId)) {
-    return res.validationError('requested project id is not valid');
+  const uuidValidationError = uuidValidation(projectId, 'project');
+  if (uuidValidationError) {
+    return res.validationError(uuidValidationError);
   }
 
   try {

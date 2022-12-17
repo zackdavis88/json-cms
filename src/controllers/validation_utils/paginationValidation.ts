@@ -44,3 +44,5 @@ export const paginationValidation: PaginationValidation = (queryString, count) =
     pageOffset,
   };
 };
+
+export type PaginationData = ReturnType<typeof paginationValidation>;

@@ -7,6 +7,7 @@ import {
   DataTypes,
   ForeignKey,
   BelongsToGetAssociationMixin,
+  NonAttribute,
 } from 'sequelize';
 import User from 'src/models/user/user';
 import Project from 'src/models/project/project';
@@ -17,6 +18,7 @@ class Membership extends Model<
 > {
   declare id: CreationOptional<string>;
   declare userId: ForeignKey<User['id']>;
+  declare user: NonAttribute<User>;
   declare projectId: ForeignKey<Project['id']>;
   declare isProjectAdmin: CreationOptional<boolean>;
   declare isBlueprintManager: CreationOptional<boolean>;
