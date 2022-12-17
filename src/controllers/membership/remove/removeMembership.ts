@@ -4,6 +4,7 @@ import removeMembershipValidation from './removeMembershipValidation';
 const removeMembership = async (req: Request, res: Response) => {
   const membership = req.requestedMembership;
   const project = req.requestedProject;
+  const user = membership.user;
   const confirm = req.body.confirm;
 
   const validationError = removeMembershipValidation(confirm);
@@ -12,7 +13,6 @@ const removeMembership = async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await membership.getUser();
     await membership.destroy();
 
     const membershipData = {
