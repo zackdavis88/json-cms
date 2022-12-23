@@ -11,85 +11,87 @@ import {
 import User from 'src/models/user/user';
 import Project from 'src/models/project/project';
 
-type FieldTypes = 'STRING' | 'NUMBER' | 'BOOLEAN' | 'DATE' | 'ARRAY' | 'OBJECT';
+export const FieldTypes = {
+  STRING: 'STRING',
+  NUMBER: 'NUMBER',
+  BOOLEAN: 'BOOLEAN',
+  DATE: 'DATE',
+  ARRAY: 'ARRAY',
+  OBJECT: 'OBJECT',
+} as const;
 
-export class BlueprintField extends Model<
-  InferAttributes<BlueprintField>,
-  InferCreationAttributes<BlueprintField>
-> {
-  declare id: CreationOptional<string>;
-  declare type: FieldTypes;
-  declare name: string;
-  declare isRequired: CreationOptional<boolean>;
-  declare isInteger: CreationOptional<boolean>;
-  declare regex: CreationOptional<string> | null;
-  declare min: CreationOptional<number> | null;
-  declare max: CreationOptional<number> | null;
-  declare arrayOfId: ForeignKey<BlueprintField['id']> | null;
-  declare arrayOf: NonAttribute<BlueprintField> | null;
-  declare parentFieldId: ForeignKey<BlueprintField['id']> | null;
-  declare fields: NonAttribute<BlueprintField[]> | null;
-  declare parentBlueprintId: ForeignKey<Blueprint['id']> | null;
+interface BaseField {
+  id?: string;
+  name: string;
+  isRequired?: boolean;
 }
+
+interface StringField extends BaseField {
+  type: typeof FieldTypes.STRING;
+  regex?: string;
+}
+
+interface NumberField extends BaseField {
+  type: typeof FieldTypes.NUMBER;
+  isInteger?: boolean;
+  min?: number;
+  max?: number;
+}
+
+interface BooleanField extends BaseField {
+  type: typeof FieldTypes.BOOLEAN;
+}
+
+interface DateField extends BaseField {
+  type: typeof FieldTypes.DATE;
+}
+
+interface ArrayField extends BaseField {
+  type: typeof FieldTypes.ARRAY;
+  min?: number;
+  max?: number;
+  arrayOf: StringField | NumberField | BooleanField | DateField | ObjectField;
+}
+
+interface ObjectField extends BaseField {
+  type: typeof FieldTypes.OBJECT;
+  fields: BlueprintField[];
+}
+
+type BlueprintField =
+  | StringField
+  | NumberField
+  | BooleanField
+  | DateField
+  | ArrayField
+  | ObjectField;
 
 class Blueprint extends Model<
   InferAttributes<Blueprint>,
   InferCreationAttributes<Blueprint>
 > {
   declare id: CreationOptional<string>;
-  declare projectId: ForeignKey<Project['id']>;
   declare name: string;
   declare isActive: CreationOptional<boolean>;
-  declare createdOn: CreationOptional<Date>;
-  declare updatedOn: CreationOptional<Date> | null;
-  declare deletedOn: CreationOptional<Date> | null;
+  declare fields: BlueprintField[];
+
+  declare projectId: ForeignKey<Project['id']>;
+  declare project: NonAttribute<Project>;
+
   declare createdById: ForeignKey<User['id']>;
   declare createdBy: NonAttribute<User>;
+  declare createdOn: CreationOptional<Date>;
+
   declare updatedById: ForeignKey<User['id']> | null;
   declare updatedBy: NonAttribute<User> | null;
+  declare updatedOn: CreationOptional<Date> | null;
+
   declare deletedById: ForeignKey<User['id']> | null;
   declare deletedBy: NonAttribute<User> | null;
-  declare fields: NonAttribute<BlueprintField[]>;
+  declare deletedOn: CreationOptional<Date> | null;
 }
 
 export const initializeBlueprint = (sequelize: Sequelize) => {
-  BlueprintField.init(
-    {
-      id: {
-        type: DataTypes.UUID,
-        primaryKey: true,
-        defaultValue: DataTypes.UUIDV4,
-      },
-      type: {
-        type: DataTypes.STRING,
-      },
-      name: {
-        type: DataTypes.STRING,
-      },
-      isRequired: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-      isInteger: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-      regex: {
-        type: DataTypes.STRING,
-      },
-      min: {
-        type: DataTypes.FLOAT,
-      },
-      max: {
-        type: DataTypes.FLOAT,
-      },
-    },
-    {
-      sequelize,
-      tableName: 'blueprint_fields',
-      timestamps: false,
-    },
-  );
   Blueprint.init(
     {
       id: {
@@ -113,6 +115,9 @@ export const initializeBlueprint = (sequelize: Sequelize) => {
       },
       deletedOn: {
         type: DataTypes.DATE,
+      },
+      fields: {
+        type: DataTypes.JSONB,
       },
     },
     { sequelize, tableName: 'blueprints', timestamps: false },

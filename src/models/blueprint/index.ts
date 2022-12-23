@@ -1,1 +1,1 @@
-export { default as Blueprint, BlueprintField, initializeBlueprint } from './blueprint';
+export { default as Blueprint, FieldTypes, initializeBlueprint } from './blueprint';

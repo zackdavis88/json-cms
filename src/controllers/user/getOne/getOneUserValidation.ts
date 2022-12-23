@@ -1,4 +1,4 @@
-import { User } from 'src/models';
+import { Membership, User } from 'src/models';
 
 type GetOneUserValidation = (username: string) => Promise<string | User>;
 
@@ -7,6 +7,11 @@ const getOneUserValidation: GetOneUserValidation = async (username) => {
     where: {
       username: username.toLowerCase(),
       isActive: true,
+    },
+    include: {
+      as: 'memberships',
+      model: Membership,
+      // include: [{ model: Project, as: 'project' }],
     },
   });
 
