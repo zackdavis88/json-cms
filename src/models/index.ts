@@ -2,7 +2,11 @@ import { Sequelize } from 'sequelize';
 import { User, initializeUser } from './user';
 import { Project, initializeProject } from './project';
 import { Membership, initializeMembership } from './membership';
-import { Blueprint, initializeBlueprint } from './blueprint';
+import {
+  Blueprint,
+  initializeBlueprint,
+  BlueprintField as _BlueprintField,
+} from './blueprint';
 
 const synchronizeTables = async (sequelize: Sequelize) => {
   try {
@@ -22,13 +26,21 @@ export const initializeModels = (sequelize: Sequelize) => {
 
   // Sequelize is weird. These associations need to be done outside of the model files
   // and after model initialization because of our code structure.
-  User.hasMany(Membership, { as: 'memberships', foreignKey: 'userId' });
+  User.hasMany(Membership, {
+    as: 'memberships',
+    foreignKey: 'userId',
+    onDelete: 'CASCADE',
+  });
   Membership.belongsTo(User, {
     foreignKey: 'userId',
     as: 'user',
   });
 
-  Project.hasMany(Membership, { as: 'memberships', foreignKey: 'projectId' });
+  Project.hasMany(Membership, {
+    as: 'memberships',
+    foreignKey: 'projectId',
+    onDelete: 'CASCADE',
+  });
   Membership.belongsTo(Project, {
     foreignKey: 'projectId',
     as: 'project',
@@ -56,3 +68,4 @@ export { User } from './user';
 export { Project } from './project';
 export { Membership } from './membership';
 export { Blueprint, FieldTypes } from './blueprint';
+export type BlueprintField = _BlueprintField;

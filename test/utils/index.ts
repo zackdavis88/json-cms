@@ -10,7 +10,7 @@ import {
 } from '../../src/config/db';
 import { PORT } from '../../src/config/app';
 import { SECRET } from '../../src/config/auth';
-import { initializeModels, User, Project, Membership } from '../../src/models';
+import { initializeModels, User, Project, Membership, Blueprint } from '../../src/models';
 
 interface TokenDataOverride {
   id?: string;
@@ -23,6 +23,7 @@ export class TestHelper {
   sequelize: Sequelize;
   testUsernames: string[];
   testProjectIds: string[];
+  testBlueprintIds: string[];
 
   constructor() {
     const connectToDatabase = async () => {
@@ -38,6 +39,7 @@ export class TestHelper {
     connectToDatabase();
     this.testUsernames = [];
     this.testProjectIds = [];
+    this.testBlueprintIds = [];
   }
 
   getServerUrl() {
@@ -59,6 +61,10 @@ export class TestHelper {
     this.testProjectIds = this.testProjectIds.concat(testProjectId);
   }
 
+  addTestBlueprintId(testBlueprintId: string) {
+    this.testBlueprintIds = this.testBlueprintIds.concat(testBlueprintId);
+  }
+
   async removeTestData() {
     if (this.testUsernames.length) {
       await User.destroy({ where: { username: this.testUsernames } });
@@ -67,6 +73,10 @@ export class TestHelper {
     if (this.testProjectIds.length) {
       await Membership.destroy({ where: { projectId: this.testProjectIds } });
       await Project.destroy({ where: { id: this.testProjectIds } });
+    }
+
+    if (this.testBlueprintIds.length) {
+      await Blueprint.destroy({ where: { id: this.testBlueprintIds } });
     }
 
     await this.sequelize.close();

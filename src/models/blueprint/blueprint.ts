@@ -20,51 +20,18 @@ export const FieldTypes = {
   OBJECT: 'OBJECT',
 } as const;
 
-interface BaseField {
+export interface BlueprintField {
   id?: string;
   name: string;
+  type: string;
   isRequired?: boolean;
-}
-
-interface StringField extends BaseField {
-  type: typeof FieldTypes.STRING;
   regex?: string;
-}
-
-interface NumberField extends BaseField {
-  type: typeof FieldTypes.NUMBER;
   isInteger?: boolean;
   min?: number;
   max?: number;
+  arrayOf?: BlueprintField;
+  fields?: BlueprintField[];
 }
-
-interface BooleanField extends BaseField {
-  type: typeof FieldTypes.BOOLEAN;
-}
-
-interface DateField extends BaseField {
-  type: typeof FieldTypes.DATE;
-}
-
-interface ArrayField extends BaseField {
-  type: typeof FieldTypes.ARRAY;
-  min?: number;
-  max?: number;
-  arrayOf: StringField | NumberField | BooleanField | DateField | ObjectField;
-}
-
-interface ObjectField extends BaseField {
-  type: typeof FieldTypes.OBJECT;
-  fields: BlueprintField[];
-}
-
-type BlueprintField =
-  | StringField
-  | NumberField
-  | BooleanField
-  | DateField
-  | ArrayField
-  | ObjectField;
 
 class Blueprint extends Model<
   InferAttributes<Blueprint>,
@@ -74,6 +41,7 @@ class Blueprint extends Model<
   declare name: string;
   declare isActive: CreationOptional<boolean>;
   declare fields: BlueprintField[];
+  declare version: number;
 
   declare projectId: ForeignKey<Project['id']>;
   declare project: NonAttribute<Project>;
@@ -106,6 +74,12 @@ export const initializeBlueprint = (sequelize: Sequelize) => {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
+      fields: {
+        type: DataTypes.JSON,
+      },
+      version: {
+        type: DataTypes.INTEGER,
+      },
       createdOn: {
         type: DataTypes.DATE,
         defaultValue: new Date(),
@@ -115,9 +89,6 @@ export const initializeBlueprint = (sequelize: Sequelize) => {
       },
       deletedOn: {
         type: DataTypes.DATE,
-      },
-      fields: {
-        type: DataTypes.JSONB,
       },
     },
     { sequelize, tableName: 'blueprints', timestamps: false },
