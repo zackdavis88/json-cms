@@ -7,7 +7,13 @@ import methodOverride from 'method-override';
 import { Sequelize, BaseError } from 'sequelize';
 import { PORT } from 'src/config/app';
 import { DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, DB_NAME } from 'src/config/db';
-import { initializeModelsAndSync, User, Project, Membership } from 'src/models';
+import {
+  initializeModelsAndSync,
+  User,
+  Project,
+  Membership,
+  Blueprint,
+} from 'src/models';
 import { configureRoutes } from 'src/routes';
 import { configureResponseHandlers } from './utils';
 
@@ -19,6 +25,7 @@ declare global {
       user: User;
       requestedProject: Project;
       requestedMembership: Membership;
+      requestedBlueprint: Blueprint;
     }
     interface Response {
       fatalError: (message: string, errorDetails?: BaseError) => Response | undefined;
