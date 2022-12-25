@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { Blueprint } from 'src/models';
 import createBlueprintValidation from './createBlueprintValidation';
 
 const createBlueprint = async (req: Request, res: Response) => {
@@ -12,13 +11,11 @@ const createBlueprint = async (req: Request, res: Response) => {
   }
 
   try {
-    const newBlueprint = await Blueprint.create({
+    const newBlueprint = await project.createBlueprint({
       name,
       fields,
       version: 1,
-      createdOn: new Date(),
       createdById: user.id,
-      projectId: project.id,
     });
 
     const blueprintData = {

@@ -10,6 +10,7 @@ import {
   HasManyCountAssociationsMixin,
 } from 'sequelize';
 import Membership from 'src/models/membership/membership';
+import Blueprint from 'src/models/blueprint/blueprint';
 
 class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Project>> {
   declare id: CreationOptional<string>;
@@ -23,6 +24,10 @@ class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Pr
   declare createMembership: HasManyCreateAssociationMixin<Membership>;
   declare getMemberships: HasManyGetAssociationsMixin<Membership>;
   declare countMemberships: HasManyCountAssociationsMixin;
+
+  declare createBlueprint: HasManyCreateAssociationMixin<Blueprint>;
+  declare getBlueprints: HasManyGetAssociationsMixin<Blueprint>;
+  declare countBlueprints: HasManyCountAssociationsMixin;
 }
 
 export const initializeProject = (sequelize: Sequelize) => {
