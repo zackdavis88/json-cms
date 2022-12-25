@@ -6,5 +6,5 @@ export const blueprintRoutes = (router: Router) => {
     .route('/projects/:projectId/blueprints')
     .all(AuthController.authenticateToken, ProjectController.getRequestedProject)
     .post(AuthController.authorizeBlueprintAction, BlueprintController.create)
-    .get(AuthController.authorizeBlueprintRead);
+    .get(AuthController.authorizeBlueprintRead, BlueprintController.getAll);
 };

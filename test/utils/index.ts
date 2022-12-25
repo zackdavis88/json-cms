@@ -10,7 +10,7 @@ import {
 } from '../../src/config/db';
 import { PORT } from '../../src/config/app';
 import { SECRET } from '../../src/config/auth';
-import { initializeModels, User, Project, Membership, Blueprint } from '../../src/models';
+import { initializeModels, User, Project } from '../../src/models';
 
 interface TokenDataOverride {
   id?: string;
@@ -71,12 +71,7 @@ export class TestHelper {
     }
 
     if (this.testProjectIds.length) {
-      await Membership.destroy({ where: { projectId: this.testProjectIds } });
       await Project.destroy({ where: { id: this.testProjectIds } });
-    }
-
-    if (this.testBlueprintIds.length) {
-      await Blueprint.destroy({ where: { id: this.testBlueprintIds } });
     }
 
     await this.sequelize.close();
