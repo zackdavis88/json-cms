@@ -2,13 +2,13 @@ import assert from 'assert';
 import { TestHelper } from '../utils';
 import { ErrorTypes } from '../../src/server/utils/configureResponseHandlers';
 import request from 'supertest';
-import { Project, User, BlueprintField } from '../../src/models';
-import { blueprintCreatePayload } from './data';
+import { Project, User, Blueprint, BlueprintField } from '../../src/models';
+import { blueprintCreatePayload, blueprintUpdatePayload } from './data';
 const testHelper = new TestHelper();
 const serverUrl = testHelper.getServerUrl();
-let apiRoute = '/projects/:projectId/blueprints';
+let apiRoute = '/projects/:projectId/blueprints/:blueprintId';
 
-interface CreatePayload {
+interface UpdatePayload {
   name?: unknown;
   fields?: unknown;
 }
@@ -26,19 +26,28 @@ export const removeFieldIds: RemoveFieldIds = (fields) => {
   });
 };
 
-describe('[Blueprint] Create', () => {
+describe('[Blueprint] Update', () => {
   describe(`POST ${apiRoute}`, () => {
     let testProject: Project;
     let testUser: User;
-    let notAuthorizedUser: User;
+    let testBlueprint: Blueprint;
     let authToken: string;
+    let notAuthorizedUser: User;
     let notAuthorizedToken: string;
-    let payload: CreatePayload;
+    let payload: UpdatePayload;
 
     beforeAll(async () => {
       testUser = await testHelper.createTestUser();
       notAuthorizedUser = await testHelper.createTestUser();
       testProject = await testHelper.createTestProject(testUser);
+      testBlueprint = await testProject.createBlueprint({
+        ...blueprintCreatePayload,
+        name: testHelper.generateUUID(),
+        version: 9,
+        createdById: testUser.id,
+        updatedOn: new Date(),
+        updatedById: testUser.id,
+      });
       authToken = testHelper.generateToken(testUser);
       notAuthorizedToken = testHelper.generateToken(notAuthorizedUser);
     });
@@ -48,9 +57,9 @@ describe('[Blueprint] Create', () => {
     });
 
     beforeEach(() => {
-      apiRoute = `/projects/${testProject.id}/blueprints`;
+      apiRoute = `/projects/${testProject.id}/blueprints/${testBlueprint.id}`;
       payload = {
-        ...blueprintCreatePayload,
+        ...blueprintUpdatePayload,
       };
     });
 
@@ -66,7 +75,7 @@ describe('[Blueprint] Create', () => {
     });
 
     it('should reject requests that have an invalid project id', (done) => {
-      apiRoute = '/projects/wrong/blueprints';
+      apiRoute = `/projects/wrong/blueprints/${testBlueprint.id}`;
       request(serverUrl).post(apiRoute).set('x-auth-token', authToken).expect(
         400,
         {
@@ -78,11 +87,35 @@ describe('[Blueprint] Create', () => {
     });
 
     it('should reject requests when the project is not found', (done) => {
-      apiRoute = `/projects/${testHelper.generateUUID()}/blueprints`;
+      apiRoute = `/projects/${testHelper.generateUUID()}/blueprints/${testBlueprint.id}`;
       request(serverUrl).post(apiRoute).set('x-auth-token', authToken).expect(
         404,
         {
           error: 'requested project not found',
+          errorType: ErrorTypes.NOT_FOUND,
+        },
+        done,
+      );
+    });
+
+    it('should reject requests that have an invalid blueprint id', (done) => {
+      apiRoute = `/projects/${testProject.id}/blueprints/badId`;
+      request(serverUrl).post(apiRoute).set('x-auth-token', authToken).expect(
+        400,
+        {
+          error: 'requested blueprint id is not valid',
+          errorType: ErrorTypes.VALIDATION,
+        },
+        done,
+      );
+    });
+
+    it('should reject requests when the blueprint is not found', (done) => {
+      apiRoute = `/projects/${testProject.id}/blueprints/${testHelper.generateUUID()}`;
+      request(serverUrl).post(apiRoute).set('x-auth-token', authToken).expect(
+        404,
+        {
+          error: 'requested blueprint not found',
           errorType: ErrorTypes.NOT_FOUND,
         },
         done,
@@ -113,8 +146,8 @@ describe('[Blueprint] Create', () => {
       });
     });
 
-    it('should reject requests when name is missing', (done) => {
-      payload.name = undefined;
+    it('should reject requests that contain no update data', (done) => {
+      payload = {};
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -122,7 +155,7 @@ describe('[Blueprint] Create', () => {
         .expect(
           400,
           {
-            error: 'name is missing from input',
+            error: 'input contains no update data',
             errorType: ErrorTypes.VALIDATION,
           },
           done,
@@ -130,7 +163,7 @@ describe('[Blueprint] Create', () => {
     });
 
     it('should reject requests when name is not a string', (done) => {
-      payload.name = { something: 'wrong' };
+      payload.name = 2384902839;
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -193,24 +226,8 @@ describe('[Blueprint] Create', () => {
         );
     });
 
-    it('should reject requests when fields is missing', (done) => {
-      payload.fields = undefined;
-      request(serverUrl)
-        .post(apiRoute)
-        .set('x-auth-token', authToken)
-        .send(payload)
-        .expect(
-          400,
-          {
-            error: 'fields is missing from input',
-            errorType: ErrorTypes.VALIDATION,
-          },
-          done,
-        );
-    });
-
     it('should reject requests when fields is not an array', (done) => {
-      payload.fields = '';
+      payload.fields = { something: 'that is not an array' };
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -242,7 +259,7 @@ describe('[Blueprint] Create', () => {
     });
 
     it('should reject requests when a field-object is not an object', (done) => {
-      payload.fields = ['something'];
+      payload.fields = [[], []];
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -258,7 +275,7 @@ describe('[Blueprint] Create', () => {
     });
 
     it('should reject requests when a field-object type is missing', (done) => {
-      payload.fields = [{}];
+      payload.fields = [{ name: 'something without a type' }];
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -274,7 +291,7 @@ describe('[Blueprint] Create', () => {
     });
 
     it('should reject requests when a field-object type is not a string', (done) => {
-      payload.fields = [{ type: { something: 'wrong' } }];
+      payload.fields = [{ type: true }];
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -372,9 +389,9 @@ describe('[Blueprint] Create', () => {
     it('should reject requests when field-object name contains invalid characters', (done) => {
       payload.fields = [
         {
-          type: 'ARRAY',
-          name: 'testArray',
-          arrayOf: { type: 'NUMBER', name: 'abc-_+=&^%$#@!/|{}()?.,<>;\':"*]' },
+          type: 'OBJECT',
+          name: 'testObject',
+          fields: [{ type: 'NUMBER', name: 'abc-_+=&^%$#@!/|{}()?.,<>;\':"*]' }],
         },
       ];
       request(serverUrl)
@@ -384,7 +401,7 @@ describe('[Blueprint] Create', () => {
         .expect(
           400,
           {
-            error: 'testArray field object name contains invalid characters',
+            error: 'testObject field object name contains invalid characters',
             errorType: ErrorTypes.VALIDATION,
           },
           done,
@@ -392,7 +409,7 @@ describe('[Blueprint] Create', () => {
     });
 
     it('should reject requests when a field-object isRequired is not a boolean', (done) => {
-      payload.fields = [{ type: 'DATE', name: 'testDate', isRequired: 'no' }];
+      payload.fields = [{ type: 'DATE', name: 'testDate', isRequired: ['yes'] }];
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -408,7 +425,7 @@ describe('[Blueprint] Create', () => {
     });
 
     it('should reject requests when a field-object isInteger is not a boolean', (done) => {
-      payload.fields = [{ type: 'NUMBER', name: 'testNumber', isInteger: 'yes' }];
+      payload.fields = [{ type: 'NUMBER', name: 'testNumber', isInteger: 'nope' }];
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -488,7 +505,7 @@ describe('[Blueprint] Create', () => {
     });
 
     it('should reject requests when arrayOf is not a field-object', (done) => {
-      payload.fields = [{ type: 'ARRAY', name: 'testArray', arrayOf: '' }];
+      payload.fields = [{ type: 'ARRAY', name: 'testArray', arrayOf: ['wrong'] }];
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -602,7 +619,7 @@ describe('[Blueprint] Create', () => {
         );
     });
 
-    it('should successfully create a new blueprint', (done) => {
+    it('should successfully update a blueprint', (done) => {
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -614,19 +631,27 @@ describe('[Blueprint] Create', () => {
           }
 
           const { message, blueprint } = res.body;
-          assert.strictEqual(message, 'blueprint has been successfully created');
+          assert.strictEqual(message, 'blueprint has been successfully updated');
           assert(blueprint);
-          assert(blueprint.id);
-          testHelper.addTestBlueprintId(blueprint.id);
+          assert.strictEqual(blueprint.id, testBlueprint.id);
           assert.strictEqual(blueprint.name, payload.name);
-          assert(blueprint.createdOn);
+          assert.strictEqual(blueprint.version, testBlueprint.version + 1);
+
+          assert(blueprint.project);
+          assert.strictEqual(blueprint.project.id, testProject.id);
+          assert.strictEqual(blueprint.project.name, testProject.name);
+
+          assert.strictEqual(blueprint.createdOn, testBlueprint.createdOn.toISOString());
           assert(blueprint.createdBy);
-          assert.strictEqual(blueprint.createdBy.username, testUser.username);
           assert.strictEqual(blueprint.createdBy.displayName, testUser.displayName);
+          assert.strictEqual(blueprint.createdBy.username, testUser.username);
+
+          assert(blueprint.updatedOn);
+          assert(blueprint.updatedBy);
+          assert.strictEqual(blueprint.updatedBy.displayName, testUser.displayName);
+          assert.strictEqual(blueprint.updatedBy.username, testUser.username);
 
           assert.deepStrictEqual(removeFieldIds(blueprint.fields), payload.fields);
-
-          assert.strictEqual(blueprint.version, 1);
           done();
         });
     });

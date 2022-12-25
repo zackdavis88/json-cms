@@ -16,6 +16,6 @@ export const blueprintRoutes = (router: Router) => {
       BlueprintController.getRequestedBlueprint,
     )
     .get(AuthController.authorizeBlueprintRead, BlueprintController.getOne)
-    .post()
-    .delete();
+    .post(AuthController.authorizeBlueprintAction, BlueprintController.update)
+    .delete(AuthController.authorizeBlueprintAction, BlueprintController.remove);
 };

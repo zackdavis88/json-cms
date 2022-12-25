@@ -59,7 +59,8 @@ export const getRequestedBlueprint = async (
     res.fatalError('fatal error while getting requested blueprint');
   }
 };
-
+// TODO: Lets have another middleware for getOneBlueprintVersion that pulls a specific version and updates the requestedBlueprint...
+// this will only for for the getOne endpoint.
 const getOneBlueprint = (req: Request, res: Response) => {
   const project = req.requestedProject;
   const blueprint = req.requestedBlueprint;
