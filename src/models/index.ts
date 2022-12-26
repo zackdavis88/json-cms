@@ -8,6 +8,7 @@ import {
   initializeBlueprint,
   BlueprintField as _BlueprintField,
 } from './blueprint';
+import { Component, initializeComponent } from './component';
 
 const synchronizeTables = async (sequelize: Sequelize) => {
   try {
@@ -24,9 +25,12 @@ export const initializeModels = (sequelize: Sequelize) => {
   initializeProject(sequelize);
   initializeMembership(sequelize);
   initializeBlueprint(sequelize);
+  initializeComponent(sequelize);
 
-  // Sequelize is weird. These associations need to be done outside of the model files
-  // and after model initialization because of our code structure.
+  /*  Sequelize is weird. These associations need to be done outside of the model files
+   *  and after model initialization because of our code structure.
+   */
+  // Membership associations
   User.hasMany(Membership, {
     as: 'memberships',
     foreignKey: 'userId',
@@ -47,6 +51,7 @@ export const initializeModels = (sequelize: Sequelize) => {
     as: 'project',
   });
 
+  // Blueprint associations
   User.hasMany(Blueprint, { as: 'createdBlueprints', foreignKey: 'createdById' });
   Blueprint.belongsTo(User, { as: 'createdBy', foreignKey: 'createdById' });
 
@@ -69,6 +74,23 @@ export const initializeModels = (sequelize: Sequelize) => {
     onDelete: 'CASCADE',
   });
   BlueprintVersion.belongsTo(Blueprint, { as: 'blueprint', foreignKey: 'blueprintId' });
+
+  // Component associations
+  Blueprint.hasMany(Component, {
+    as: 'components',
+    foreignKey: 'blueprintId',
+    onDelete: 'CASCADE',
+  });
+  Component.belongsTo(Blueprint, { as: 'blueprint', foreignKey: 'blueprintId' });
+
+  User.hasMany(Component, { as: 'createdComponents', foreignKey: 'createdById' });
+  Component.belongsTo(User, { as: 'createdBy', foreignKey: 'createdById' });
+
+  User.hasMany(Component, { as: 'updatedComponents', foreignKey: 'updatedById' });
+  Component.belongsTo(User, { as: 'updatedBy', foreignKey: 'updatedById' });
+
+  User.hasMany(Component, { as: 'deletedComponents', foreignKey: 'deletedById' });
+  Component.belongsTo(User, { as: 'deletedBy', foreignKey: 'deletedById' });
 };
 
 export const initializeModelsAndSync = async (sequelize: Sequelize) => {
@@ -80,4 +102,5 @@ export { User } from './user';
 export { Project } from './project';
 export { Membership } from './membership';
 export { Blueprint, BlueprintVersion, FieldTypes } from './blueprint';
+export { Component } from './component';
 export type BlueprintField = _BlueprintField;
