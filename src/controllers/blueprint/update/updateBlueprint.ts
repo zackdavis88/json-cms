@@ -33,7 +33,15 @@ const updateBlueprint = async (req: Request, res: Response) => {
     return res.validationError(validationError);
   }
 
-  // TODO: make a new BlueprintVersion here so that we can historically track blueprint updates.
+  try {
+    await blueprint.createVersion({
+      name: blueprint.name,
+      version: blueprint.version,
+      fields: blueprint.fields,
+    });
+  } catch (error) {
+    return res.fatalError('fatal error while creating blueprint version');
+  }
 
   if (name) {
     blueprint.name = name;

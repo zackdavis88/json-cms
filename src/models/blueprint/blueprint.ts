@@ -7,6 +7,8 @@ import {
   DataTypes,
   ForeignKey,
   NonAttribute,
+  HasManyCreateAssociationMixin,
+  HasManyGetAssociationsMixin,
 } from 'sequelize';
 import User from 'src/models/user/user';
 import Project from 'src/models/project/project';
@@ -33,6 +35,17 @@ export interface BlueprintField {
   fields?: BlueprintField[];
 }
 
+export class BlueprintVersion extends Model<
+  InferAttributes<BlueprintVersion>,
+  InferCreationAttributes<BlueprintVersion>
+> {
+  declare id: CreationOptional<string>;
+  declare blueprintId: ForeignKey<Blueprint['id']>;
+  declare name: string;
+  declare version: number;
+  declare fields: BlueprintField[];
+}
+
 class Blueprint extends Model<
   InferAttributes<Blueprint>,
   InferCreationAttributes<Blueprint>
@@ -57,6 +70,9 @@ class Blueprint extends Model<
   declare deletedById: ForeignKey<User['id']> | null;
   declare deletedBy: NonAttribute<User> | null;
   declare deletedOn: CreationOptional<Date> | null;
+
+  declare createVersion: HasManyCreateAssociationMixin<BlueprintVersion>;
+  declare getVersions: HasManyGetAssociationsMixin<BlueprintVersion>;
 }
 
 export const initializeBlueprint = (sequelize: Sequelize) => {
@@ -92,6 +108,26 @@ export const initializeBlueprint = (sequelize: Sequelize) => {
       },
     },
     { sequelize, tableName: 'blueprints', timestamps: false },
+  );
+
+  BlueprintVersion.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+      },
+      name: {
+        type: DataTypes.STRING,
+      },
+      fields: {
+        type: DataTypes.JSON,
+      },
+      version: {
+        type: DataTypes.INTEGER,
+      },
+    },
+    { sequelize, tableName: 'blueprint_versions', timestamps: false },
   );
 };
 

@@ -2,7 +2,7 @@ import assert from 'assert';
 import { TestHelper } from '../utils';
 import { ErrorTypes } from '../../src/server/utils/configureResponseHandlers';
 import request from 'supertest';
-import { Project, User, Blueprint } from '../../src/models';
+import { Project, User, Blueprint, BlueprintVersion } from '../../src/models';
 import { blueprintCreatePayload } from './data';
 const testHelper = new TestHelper();
 const serverUrl = testHelper.getServerUrl();
@@ -15,6 +15,7 @@ describe('[Blueprint] Get One', () => {
     let testBlueprint: Blueprint;
     let authToken: string;
     let notAuthorizedToken: string;
+    let testBlueprintVersion: BlueprintVersion;
 
     beforeAll(async () => {
       testUser = await testHelper.createTestUser();
@@ -27,6 +28,16 @@ describe('[Blueprint] Get One', () => {
         createdById: testUser.id,
         updatedOn: new Date(),
         updatedById: testUser.id,
+      });
+      testBlueprintVersion = await testBlueprint.createVersion({
+        version: 8,
+        name: 'the name of the blueprint in the past',
+        fields: [
+          {
+            name: 'aFieldFromThePast',
+            type: 'STRING',
+          },
+        ],
       });
       authToken = testHelper.generateToken(testUser);
       notAuthorizedToken = testHelper.generateToken(notAuthorizedUser);
@@ -140,6 +151,41 @@ describe('[Blueprint] Get One', () => {
           assert.strictEqual(blueprint.fields.length, testBlueprint.fields.length);
           assert.deepEqual(blueprint.fields, blueprintCreatePayload.fields);
           assert.strictEqual(blueprint.version, 9);
+          done();
+        });
+    });
+
+    it('should successfully return an older blueprint version', (done) => {
+      apiRoute = `${apiRoute}?version=8`;
+      request(serverUrl)
+        .get(apiRoute)
+        .set('x-auth-token', authToken)
+        .expect(200)
+        .end((err, res) => {
+          if (err) {
+            return done(err);
+          }
+
+          const { message, blueprint } = res.body;
+          assert.strictEqual(message, 'blueprint has been successfully retrieved');
+          assert(blueprint);
+          assert.strictEqual(blueprint.id, testBlueprint.id);
+          assert.strictEqual(blueprint.name, testBlueprintVersion.name);
+          assert.strictEqual(blueprint.createdOn, testBlueprint.createdOn.toISOString());
+          assert(blueprint.createdBy);
+          assert.strictEqual(blueprint.createdBy.username, testUser.username);
+          assert.strictEqual(blueprint.createdBy.displayName, testUser.displayName);
+
+          assert.strictEqual(blueprint.updatedOn, testBlueprint.updatedOn?.toISOString());
+          assert(blueprint.updatedBy);
+          assert.strictEqual(blueprint.updatedBy.username, testUser.username);
+          assert.strictEqual(blueprint.updatedBy.displayName, testUser.displayName);
+
+          assert(blueprint.fields);
+          assert(Array.isArray(blueprint.fields));
+          assert.strictEqual(blueprint.fields.length, testBlueprintVersion.fields.length);
+          assert.deepEqual(blueprint.fields, testBlueprintVersion.fields);
+          assert.strictEqual(blueprint.version, 8);
           done();
         });
     });

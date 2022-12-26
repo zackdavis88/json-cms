@@ -1,1 +1,5 @@
-export { default as getOne, getRequestedBlueprint } from './getOneBlueprint';
+export {
+  default as getOne,
+  getRequestedBlueprint,
+  getRequestedVersion,
+} from './getOneBlueprint';

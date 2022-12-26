@@ -2,7 +2,13 @@ import assert from 'assert';
 import { TestHelper } from '../utils';
 import { ErrorTypes } from '../../src/server/utils/configureResponseHandlers';
 import request from 'supertest';
-import { Project, User, Blueprint, BlueprintField } from '../../src/models';
+import {
+  Project,
+  User,
+  Blueprint,
+  BlueprintField,
+  BlueprintVersion,
+} from '../../src/models';
 import { blueprintCreatePayload, blueprintUpdatePayload } from './data';
 const testHelper = new TestHelper();
 const serverUrl = testHelper.getServerUrl();
@@ -652,7 +658,25 @@ describe('[Blueprint] Update', () => {
           assert.strictEqual(blueprint.updatedBy.username, testUser.username);
 
           assert.deepStrictEqual(removeFieldIds(blueprint.fields), payload.fields);
-          done();
+
+          // Check that a new BlueprintVersion was created to retain the old data.
+          BlueprintVersion.findOne({
+            where: {
+              blueprintId: testBlueprint.id,
+              version: testBlueprint.version,
+            },
+          }).then((blueprintVersion) => {
+            if (!blueprintVersion) {
+              return done('blueprint version not found');
+            }
+
+            assert.strictEqual(blueprintVersion.name, testBlueprint.name);
+            assert.deepStrictEqual(
+              removeFieldIds(blueprintVersion.fields),
+              testBlueprint.fields,
+            );
+            done();
+          });
         });
     });
   });

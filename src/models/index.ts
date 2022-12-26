@@ -4,6 +4,7 @@ import { Project, initializeProject } from './project';
 import { Membership, initializeMembership } from './membership';
 import {
   Blueprint,
+  BlueprintVersion,
   initializeBlueprint,
   BlueprintField as _BlueprintField,
 } from './blueprint';
@@ -61,6 +62,13 @@ export const initializeModels = (sequelize: Sequelize) => {
     onDelete: 'CASCADE',
   });
   Blueprint.belongsTo(Project, { as: 'project', foreignKey: 'projectId' });
+
+  Blueprint.hasMany(BlueprintVersion, {
+    as: 'versions',
+    foreignKey: 'blueprintId',
+    onDelete: 'CASCADE',
+  });
+  BlueprintVersion.belongsTo(Blueprint, { as: 'blueprint', foreignKey: 'blueprintId' });
 };
 
 export const initializeModelsAndSync = async (sequelize: Sequelize) => {
@@ -71,5 +79,5 @@ export const initializeModelsAndSync = async (sequelize: Sequelize) => {
 export { User } from './user';
 export { Project } from './project';
 export { Membership } from './membership';
-export { Blueprint, FieldTypes } from './blueprint';
+export { Blueprint, BlueprintVersion, FieldTypes } from './blueprint';
 export type BlueprintField = _BlueprintField;

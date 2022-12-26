@@ -59,8 +59,43 @@ export const getRequestedBlueprint = async (
     res.fatalError('fatal error while getting requested blueprint');
   }
 };
-// TODO: Lets have another middleware for getOneBlueprintVersion that pulls a specific version and updates the requestedBlueprint...
-// this will only for for the getOne endpoint.
+
+export const getRequestedVersion = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const requestedBlueprint = req.requestedBlueprint;
+  const requestedVersion = Number(req.query.version);
+
+  // Silently move on if the requestedVersion is not right.
+  if (
+    isNaN(requestedVersion) ||
+    requestedVersion < 1 ||
+    !Number.isInteger(requestedVersion) ||
+    requestedVersion >= requestedBlueprint.version
+  ) {
+    return next();
+  }
+
+  try {
+    const blueprintVersion = (
+      await requestedBlueprint.getVersions({ where: { version: requestedVersion } })
+    )[0];
+
+    if (!blueprintVersion) {
+      return next();
+    }
+
+    requestedBlueprint.version = requestedVersion;
+    requestedBlueprint.fields = blueprintVersion.fields;
+    requestedBlueprint.name = blueprintVersion.name;
+    next();
+  } catch (error) {
+    return res.fatalError('fatal error while getting requested blueprint version');
+  }
+};
+
 const getOneBlueprint = (req: Request, res: Response) => {
   const project = req.requestedProject;
   const blueprint = req.requestedBlueprint;
