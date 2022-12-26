@@ -40,7 +40,6 @@ const createBlueprint = async (req: Request, res: Response) => {
   } catch (error) {
     res.fatalError('fatal error while creating blueprint');
   }
-  res.success('blueprint has been successfully created');
 };
 
 export default createBlueprint;

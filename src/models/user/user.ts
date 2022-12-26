@@ -23,7 +23,6 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare updatedOn: CreationOptional<Date> | null;
   declare deletedOn: CreationOptional<Date> | null;
 
-  declare memberships: NonAttribute<Membership[]>;
   declare getMemberships: HasManyGetAssociationsMixin<Membership>;
 
   static generateHash(password: string): NonAttribute<string> {

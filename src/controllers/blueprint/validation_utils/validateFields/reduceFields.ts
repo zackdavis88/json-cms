@@ -15,7 +15,7 @@ type ReduceFields = (
 /*
   Welcome to hell.
   
-  This recursive method is responsible for:
+  This is a BFS traversal through the fields array.
     1. Validating the fields array contains no items with duplicate names.
     2. Validating each of the fields array items.
     3. Returning an array of ready-to-create BlueprintField objects.
