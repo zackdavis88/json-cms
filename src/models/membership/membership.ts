@@ -17,9 +17,6 @@ class Membership extends Model<
   InferCreationAttributes<Membership>
 > {
   declare id: CreationOptional<string>;
-  declare userId: ForeignKey<User['id']>;
-  declare user: NonAttribute<User>;
-  declare projectId: ForeignKey<Project['id']>;
   declare isProjectAdmin: CreationOptional<boolean>;
   declare isBlueprintManager: CreationOptional<boolean>;
   declare isComponentManager: CreationOptional<boolean>;
@@ -28,7 +25,12 @@ class Membership extends Model<
   declare createdOn: CreationOptional<Date>;
   declare updatedOn: CreationOptional<Date> | null;
 
+  declare userId: ForeignKey<User['id']>;
+  declare user: NonAttribute<User>;
   declare getUser: BelongsToGetAssociationMixin<User>;
+
+  declare projectId: ForeignKey<Project['id']>;
+  declare project: NonAttribute<Project>;
   declare getProject: BelongsToGetAssociationMixin<Project>;
 }
 

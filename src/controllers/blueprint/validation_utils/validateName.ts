@@ -13,8 +13,8 @@ export const validateName: ValidateName = (name, isOptional = false) => {
     return 'name must be a string';
   }
 
-  if (name.length < 3 || name.length > 30) {
-    return 'name must be 3 - 30 characters in length';
+  if (name.length < 1 || name.length > 100) {
+    return 'name must be 1 - 100 characters in length';
   }
 
   const regex = new RegExp('^[A-Za-z0-9-_+=&^%$#*@!|/(){}?.,<>;\':" ]+$');

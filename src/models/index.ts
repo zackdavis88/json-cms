@@ -1,10 +1,13 @@
 import { Sequelize } from 'sequelize';
-import { initializeUser } from './user';
-import { initializeProject } from './project';
-import { initializeMembership } from './membership';
-import { User } from './user';
-import { Project } from './project';
-import { Membership } from './membership';
+import { User, initializeUser } from './user';
+import { Project, initializeProject } from './project';
+import { Membership, initializeMembership } from './membership';
+import {
+  Blueprint,
+  BlueprintVersion,
+  initializeBlueprint,
+  BlueprintField as _BlueprintField,
+} from './blueprint';
 
 const synchronizeTables = async (sequelize: Sequelize) => {
   try {
@@ -20,20 +23,52 @@ export const initializeModels = (sequelize: Sequelize) => {
   initializeUser(sequelize);
   initializeProject(sequelize);
   initializeMembership(sequelize);
+  initializeBlueprint(sequelize);
 
   // Sequelize is weird. These associations need to be done outside of the model files
   // and after model initialization because of our code structure.
-  User.hasMany(Membership, { as: 'memberships', foreignKey: 'userId' });
+  User.hasMany(Membership, {
+    as: 'memberships',
+    foreignKey: 'userId',
+    onDelete: 'CASCADE',
+  });
   Membership.belongsTo(User, {
     foreignKey: 'userId',
     as: 'user',
   });
 
-  Project.hasMany(Membership, { as: 'memberships', foreignKey: 'projectId' });
+  Project.hasMany(Membership, {
+    as: 'memberships',
+    foreignKey: 'projectId',
+    onDelete: 'CASCADE',
+  });
   Membership.belongsTo(Project, {
     foreignKey: 'projectId',
     as: 'project',
   });
+
+  User.hasMany(Blueprint, { as: 'createdBlueprints', foreignKey: 'createdById' });
+  Blueprint.belongsTo(User, { as: 'createdBy', foreignKey: 'createdById' });
+
+  User.hasMany(Blueprint, { as: 'updatedBlueprints', foreignKey: 'updatedById' });
+  Blueprint.belongsTo(User, { as: 'updatedBy', foreignKey: 'updatedById' });
+
+  User.hasMany(Blueprint, { as: 'deletedBlueprints', foreignKey: 'deletedById' });
+  Blueprint.belongsTo(User, { as: 'deletedBy', foreignKey: 'deletedById' });
+
+  Project.hasMany(Blueprint, {
+    as: 'blueprints',
+    foreignKey: 'projectId',
+    onDelete: 'CASCADE',
+  });
+  Blueprint.belongsTo(Project, { as: 'project', foreignKey: 'projectId' });
+
+  Blueprint.hasMany(BlueprintVersion, {
+    as: 'versions',
+    foreignKey: 'blueprintId',
+    onDelete: 'CASCADE',
+  });
+  BlueprintVersion.belongsTo(Blueprint, { as: 'blueprint', foreignKey: 'blueprintId' });
 };
 
 export const initializeModelsAndSync = async (sequelize: Sequelize) => {
@@ -44,3 +79,5 @@ export const initializeModelsAndSync = async (sequelize: Sequelize) => {
 export { User } from './user';
 export { Project } from './project';
 export { Membership } from './membership';
+export { Blueprint, BlueprintVersion, FieldTypes } from './blueprint';
+export type BlueprintField = _BlueprintField;

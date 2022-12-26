@@ -168,19 +168,17 @@ describe('[Project] Remove', () => {
           assert.strictEqual(project.createdOn, testProject.createdOn.toISOString());
 
           // Validate that isActive is set to false in the database.
-          Project.findOne({ where: { name: testProject.name } }).then(
-            (projectInDatabase) => {
-              if (!projectInDatabase) {
-                return done('project not found');
-              }
-              assert.strictEqual(
-                project.deletedOn,
-                projectInDatabase.deletedOn?.toISOString(),
-              );
-              assert.strictEqual(projectInDatabase.isActive, false);
-              done();
-            },
-          );
+          Project.findOne({ where: { id: testProject.id } }).then((projectInDatabase) => {
+            if (!projectInDatabase) {
+              return done('project not found');
+            }
+            assert.strictEqual(
+              project.deletedOn,
+              projectInDatabase.deletedOn?.toISOString(),
+            );
+            assert.strictEqual(projectInDatabase.isActive, false);
+            done();
+          });
         });
     });
   });
