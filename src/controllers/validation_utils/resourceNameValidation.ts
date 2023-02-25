@@ -1,6 +1,9 @@
-type ValidateName = (name: unknown, isOptional?: boolean) => string | void;
+type ResourceNameValidation = (name: unknown, isOptional?: boolean) => string | void;
 
-export const validateName: ValidateName = (name, isOptional = false) => {
+export const resourceNameValidation: ResourceNameValidation = (
+  name,
+  isOptional = false,
+) => {
   if (isOptional && (name === undefined || name === null)) {
     return;
   }

@@ -1,10 +1,11 @@
 import { Blueprint, Project } from 'src/models';
 import { ComponentContent } from 'src/models';
 import {
-  validateName,
   validateBlueprintId,
   validateContent,
 } from 'src/controllers/component/validation_utils';
+import { resourceNameValidation as validateName } from 'src/controllers/validation_utils';
+
 type CreateComponentValidation = (
   project: Project,
   name: unknown,

@@ -57,36 +57,36 @@ const updateBlueprint = async (req: Request, res: Response) => {
 
   try {
     await blueprint.save();
-
-    const blueprintData: BlueprintData = {
-      id: blueprint.id,
-      name: blueprint.name,
-      version: blueprint.version,
-      fields: blueprint.fields,
-      project: {
-        id: project.id,
-        name: project.name,
-      },
-      createdOn: blueprint.createdOn,
-      updatedOn: blueprint.updatedOn,
-    };
-
-    if (blueprint.createdBy) {
-      blueprintData.createdBy = {
-        displayName: blueprint.createdBy.displayName,
-        username: blueprint.createdBy.username,
-      };
-    }
-
-    blueprintData.updatedBy = {
-      displayName: user.displayName,
-      username: user.username,
-    };
-
-    res.success('blueprint has been successfully updated', { blueprint: blueprintData });
   } catch (error) {
     res.fatalError('fatal error while updating blueprint');
   }
+
+  const blueprintData: BlueprintData = {
+    id: blueprint.id,
+    name: blueprint.name,
+    version: blueprint.version,
+    fields: blueprint.fields,
+    project: {
+      id: project.id,
+      name: project.name,
+    },
+    createdOn: blueprint.createdOn,
+    updatedOn: blueprint.updatedOn,
+  };
+
+  if (blueprint.createdBy) {
+    blueprintData.createdBy = {
+      displayName: blueprint.createdBy.displayName,
+      username: blueprint.createdBy.username,
+    };
+  }
+
+  blueprintData.updatedBy = {
+    displayName: user.displayName,
+    username: user.username,
+  };
+
+  res.success('blueprint has been successfully updated', { blueprint: blueprintData });
 };
 
 export default updateBlueprint;
