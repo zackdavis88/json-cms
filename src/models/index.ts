@@ -8,7 +8,11 @@ import {
   initializeBlueprint,
   BlueprintField as _BlueprintField,
 } from './blueprint';
-import { Component, initializeComponent } from './component';
+import {
+  Component,
+  ComponentContent as _ComponentContent,
+  initializeComponent,
+} from './component';
 
 const synchronizeTables = async (sequelize: Sequelize) => {
   try {
@@ -104,3 +108,4 @@ export { Membership } from './membership';
 export { Blueprint, BlueprintVersion, FieldTypes } from './blueprint';
 export { Component } from './component';
 export type BlueprintField = _BlueprintField;
+export type ComponentContent = _ComponentContent;

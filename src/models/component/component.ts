@@ -11,13 +11,8 @@ import {
 import User from 'src/models/user/user';
 import Blueprint from 'src/models/blueprint/blueprint';
 
-interface ComponentContent {
-  /**
-   * I hate to use the any-type but content can be any JSON structure
-   * depending on the Blueprint it is associated with.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
+export interface ComponentContent {
+  [key: string]: unknown;
 }
 
 class Component extends Model<
