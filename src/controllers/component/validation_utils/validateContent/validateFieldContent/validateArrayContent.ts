@@ -101,7 +101,7 @@ export const validateArrayContent: ReduceArrayContent = (
         if (typeof arrayField !== 'object' || Array.isArray(arrayField)) {
           return {
             ...prev,
-            validationError: `${fieldName} array field item must be an object`,
+            validationError: `${fieldName} array field 'item' must be an object`,
           };
         }
 

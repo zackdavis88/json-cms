@@ -31,7 +31,7 @@ const validateStringContent: ValidateStringContent = (
 
   const regexObject = options.regex ? new RegExp(options.regex) : null;
   if (regexObject && !regexObject.test(contentValue)) {
-    return `${parentFieldName} field '${fieldName}' must match the blueprint regex ${options.regex}`;
+    return `${parentFieldName} field '${fieldName}' must match the blueprint regex /${options.regex}/`;
   }
 
   if (typeof options.min === 'number' && contentValue.length < options.min) {

@@ -36,10 +36,9 @@ const reduceContent: ReduceContent = (fields, content, parentFieldName) => {
         min,
         max,
       } = field;
-      const contentValue = content[fieldName];
+      const contentValue: unknown = content[fieldName];
 
       if (isRequired && (contentValue === null || contentValue === undefined)) {
-        console.log('here');
         return {
           content: {},
           validationError: `${

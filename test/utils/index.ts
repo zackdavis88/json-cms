@@ -23,7 +23,6 @@ export class TestHelper {
   sequelize: Sequelize;
   testUsernames: string[];
   testProjectIds: string[];
-  testBlueprintIds: string[];
 
   constructor() {
     const connectToDatabase = async () => {
@@ -39,7 +38,6 @@ export class TestHelper {
     connectToDatabase();
     this.testUsernames = [];
     this.testProjectIds = [];
-    this.testBlueprintIds = [];
   }
 
   getServerUrl() {
@@ -59,10 +57,6 @@ export class TestHelper {
 
   addTestProjectId(testProjectId: string) {
     this.testProjectIds = this.testProjectIds.concat(testProjectId);
-  }
-
-  addTestBlueprintId(testBlueprintId: string) {
-    this.testBlueprintIds = this.testBlueprintIds.concat(testBlueprintId);
   }
 
   async removeTestData() {
