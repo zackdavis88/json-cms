@@ -22,11 +22,12 @@ const createComponent = async (req: Request, res: Response) => {
     }
 
     try {
-      const newComponent = await blueprint.createComponent({
+      const newComponent = await project.createComponent({
         name,
         content,
         blueprintVersion: blueprint.version,
         createdById: user.id,
+        blueprintId: blueprint.id,
       });
 
       const componentData = {
@@ -42,6 +43,7 @@ const createComponent = async (req: Request, res: Response) => {
           blueprint: {
             id: blueprint.id,
             name: blueprint.name,
+            version: blueprint.version,
           },
           project: {
             id: project.id,

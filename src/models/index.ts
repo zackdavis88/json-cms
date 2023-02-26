@@ -95,6 +95,13 @@ export const initializeModels = (sequelize: Sequelize) => {
 
   User.hasMany(Component, { as: 'deletedComponents', foreignKey: 'deletedById' });
   Component.belongsTo(User, { as: 'deletedBy', foreignKey: 'deletedById' });
+
+  Project.hasMany(Component, {
+    as: 'components',
+    foreignKey: 'projectId',
+    onDelete: 'CASCADE',
+  });
+  Component.belongsTo(Project, { as: 'project', foreignKey: 'projectId' });
 };
 
 export const initializeModelsAndSync = async (sequelize: Sequelize) => {

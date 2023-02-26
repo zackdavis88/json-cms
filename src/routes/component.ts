@@ -5,7 +5,8 @@ export const componentRoutes = (router: Router) => {
   router
     .route('/projects/:projectId/components')
     .all(AuthController.authenticateToken, ProjectController.getRequestedProject)
-    .post(AuthController.authorizeComponentAction, ComponentController.create);
+    .post(AuthController.authorizeComponentAction, ComponentController.create)
+    .get(AuthController.authorizeComponentRead, ComponentController.getAll);
 
   router
     .route('/projects/:projectId/components/:componentId')

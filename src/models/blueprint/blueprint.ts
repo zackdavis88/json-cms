@@ -12,7 +12,6 @@ import {
 } from 'sequelize';
 import User from 'src/models/user/user';
 import Project from 'src/models/project/project';
-import Component from 'src/models/component/component';
 
 export const FieldTypes = {
   STRING: 'STRING',
@@ -74,9 +73,6 @@ class Blueprint extends Model<
 
   declare createVersion: HasManyCreateAssociationMixin<BlueprintVersion>;
   declare getVersions: HasManyGetAssociationsMixin<BlueprintVersion>;
-
-  declare createComponent: HasManyCreateAssociationMixin<Component>;
-  declare getComponents: HasManyGetAssociationsMixin<Component>;
 }
 
 export const initializeBlueprint = (sequelize: Sequelize) => {

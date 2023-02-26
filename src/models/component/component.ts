@@ -10,6 +10,7 @@ import {
 } from 'sequelize';
 import User from 'src/models/user/user';
 import Blueprint from 'src/models/blueprint/blueprint';
+import Project from 'src/models/project/project';
 
 export interface ComponentContent {
   [key: string]: unknown;
@@ -27,6 +28,9 @@ class Component extends Model<
   declare blueprint: NonAttribute<Blueprint>;
   declare blueprintId: ForeignKey<Blueprint['id']>;
   declare blueprintVersion: number;
+
+  declare project: NonAttribute<Project>;
+  declare projectId: ForeignKey<Project['id']>;
 
   declare createdById: ForeignKey<User['id']>;
   declare createdBy: NonAttribute<User>;

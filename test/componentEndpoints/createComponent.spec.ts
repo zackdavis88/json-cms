@@ -883,6 +883,7 @@ describe('[Component] Create', () => {
           assert(blueprint);
           assert.strictEqual(blueprint.id, testBlueprint.id);
           assert.strictEqual(blueprint.name, testBlueprint.name);
+          assert.strictEqual(blueprint.version, testBlueprint.version);
 
           assert(project);
           assert.strictEqual(project.id, testProject.id);
