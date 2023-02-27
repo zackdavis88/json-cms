@@ -2,7 +2,7 @@ import assert from 'assert';
 import { TestHelper } from '../utils';
 import { ErrorTypes } from '../../src/server/utils/configureResponseHandlers';
 import request from 'supertest';
-import { Project, User, Blueprint, Component } from '../../src/models';
+import { Project, User, Blueprint, Component, BlueprintVersion } from '../../src/models';
 import { componentBlueprintPayload, componentCreatePayload } from './data';
 const testHelper = new TestHelper();
 const serverUrl = testHelper.getServerUrl();
@@ -13,7 +13,9 @@ describe('[Component] Get All', () => {
     let testProject: Project;
     let testUser: User;
     let testBlueprint: Blueprint;
+    let testBlueprintVersion: BlueprintVersion;
     let testComponent: Component;
+    let testComponentWithBlueprintVersion: Component;
     let authToken: string;
     let notAuthorizedToken: string;
 
@@ -27,46 +29,47 @@ describe('[Component] Get All', () => {
         version: 6,
         createdById: testUser.id,
       });
+      testBlueprintVersion = await testBlueprint.createVersion({
+        name: testHelper.generateUUID(),
+        version: 5,
+        fields: [],
+      });
       await testProject.createComponent({
         ...componentCreatePayload,
         name: testHelper.generateUUID(),
         blueprintId: testBlueprint.id,
-        blueprintVersion: testBlueprint.version,
         createdById: testUser.id,
       });
       await testProject.createComponent({
         ...componentCreatePayload,
         name: testHelper.generateUUID(),
         blueprintId: testBlueprint.id,
-        blueprintVersion: testBlueprint.version,
         createdById: testUser.id,
       });
       await testProject.createComponent({
         ...componentCreatePayload,
         name: testHelper.generateUUID(),
         blueprintId: testBlueprint.id,
-        blueprintVersion: testBlueprint.version,
         createdById: testUser.id,
       });
       await testProject.createComponent({
         ...componentCreatePayload,
         name: testHelper.generateUUID(),
         blueprintId: testBlueprint.id,
-        blueprintVersion: testBlueprint.version,
         createdById: testUser.id,
       });
-      await testProject.createComponent({
+      testComponentWithBlueprintVersion = await testProject.createComponent({
         ...componentCreatePayload,
         name: testHelper.generateUUID(),
         blueprintId: testBlueprint.id,
-        blueprintVersion: testBlueprint.version,
         createdById: testUser.id,
+        blueprintVersionId: testBlueprintVersion.id,
+        blueprintIsCurrent: false,
       });
       testComponent = await testProject.createComponent({
         ...componentCreatePayload,
         name: testHelper.generateUUID(),
         blueprintId: testBlueprint.id,
-        blueprintVersion: testBlueprint.version,
         createdById: testUser.id,
         updatedOn: new Date(),
         updatedById: testUser.id,
@@ -130,7 +133,7 @@ describe('[Component] Get All', () => {
     });
 
     it('should successfully return a list of components', (done) => {
-      apiRoute = `${apiRoute}?itemsPerPage=1&page=6`;
+      apiRoute = `${apiRoute}?itemsPerPage=2&page=3`;
       request(serverUrl)
         .get(apiRoute)
         .set('x-auth-token', authToken)
@@ -139,7 +142,6 @@ describe('[Component] Get All', () => {
           if (err) {
             return done(err);
           }
-
           const {
             message,
             components,
@@ -153,13 +155,32 @@ describe('[Component] Get All', () => {
           assert(project);
           assert.strictEqual(project.id, testProject.id);
           assert.strictEqual(project.name, testProject.name);
-          assert.strictEqual(page, 6);
+          assert.strictEqual(page, 3);
           assert.strictEqual(totalItems, 6);
-          assert.strictEqual(totalPages, 6);
-          assert.strictEqual(itemsPerPage, 1);
-          assert.strictEqual(components.length, 1);
+          assert.strictEqual(totalPages, 3);
+          assert.strictEqual(itemsPerPage, 2);
+          assert.strictEqual(components.length, 2);
 
-          const component = components[0];
+          const componentWithBlueprintVersion = components[0];
+          assert.strictEqual(
+            componentWithBlueprintVersion.id,
+            testComponentWithBlueprintVersion.id,
+          );
+          assert.strictEqual(
+            componentWithBlueprintVersion.blueprint.id,
+            testBlueprint.id,
+          );
+          assert.strictEqual(
+            componentWithBlueprintVersion.blueprint.name,
+            testBlueprintVersion.name,
+          );
+          assert.strictEqual(
+            componentWithBlueprintVersion.blueprint.version,
+            testBlueprintVersion.version,
+          );
+          assert.strictEqual(componentWithBlueprintVersion.blueprint.isCurrent, false);
+
+          const component = components[1];
           assert.strictEqual(component.id, testComponent.id);
           assert.strictEqual(component.name, testComponent.name);
           assert.strictEqual(component.createdOn, testComponent.createdOn.toISOString());
@@ -176,6 +197,7 @@ describe('[Component] Get All', () => {
           assert.strictEqual(component.blueprint.id, testBlueprint.id);
           assert.strictEqual(component.blueprint.name, testBlueprint.name);
           assert.strictEqual(component.blueprint.version, testBlueprint.version);
+          assert.strictEqual(component.blueprint.isCurrent, true);
           done();
         });
     });

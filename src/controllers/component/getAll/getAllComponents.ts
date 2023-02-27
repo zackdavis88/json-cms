@@ -91,7 +91,6 @@ const getAllComponents = async (req: Request, res: Response) => {
             ...componentData.blueprint,
             name: component.blueprintVersion.name,
             version: component.blueprintVersion.version,
-            isCurrent: false,
           };
         }
 

@@ -55,7 +55,7 @@ export const initializeProject = (sequelize: Sequelize) => {
       },
       createdOn: {
         type: DataTypes.DATE,
-        defaultValue: new Date(),
+        defaultValue: DataTypes.NOW,
       },
       updatedOn: {
         type: DataTypes.DATE,
