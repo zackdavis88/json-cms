@@ -25,7 +25,6 @@ const createComponent = async (req: Request, res: Response) => {
       const newComponent = await project.createComponent({
         name,
         content,
-        blueprintVersion: blueprint.version,
         createdById: user.id,
         blueprintId: blueprint.id,
       });

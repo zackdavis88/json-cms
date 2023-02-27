@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Blueprint, Project, User } from 'src/models';
+import { Blueprint, Project, User, Component } from 'src/models';
 import updateBlueprintValidation from './updateBlueprintValidation';
 
 interface BlueprintData {
@@ -34,11 +34,23 @@ const updateBlueprint = async (req: Request, res: Response) => {
   }
 
   try {
-    await blueprint.createVersion({
+    const blueprintVersion = await blueprint.createVersion({
       name: blueprint.name,
       version: blueprint.version,
       fields: blueprint.fields,
     });
+
+    // If any components exist that reference this blueprint, we need to update them with the blueprintVersion.
+    await Component.update(
+      { blueprintVersionId: blueprintVersion.id, blueprintIsCurrent: false },
+      {
+        where: {
+          blueprintId: blueprint.id,
+          isActive: true,
+          blueprintIsCurrent: true,
+        },
+      },
+    );
   } catch (error) {
     return res.fatalError('fatal error while creating blueprint version');
   }

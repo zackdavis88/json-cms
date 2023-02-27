@@ -87,6 +87,15 @@ export const initializeModels = (sequelize: Sequelize) => {
   });
   Component.belongsTo(Blueprint, { as: 'blueprint', foreignKey: 'blueprintId' });
 
+  BlueprintVersion.hasMany(Component, {
+    as: 'components',
+    foreignKey: 'blueprintVersionId',
+  });
+  Component.belongsTo(BlueprintVersion, {
+    as: 'blueprintVersion',
+    foreignKey: 'blueprintVersionId',
+  });
+
   User.hasMany(Component, { as: 'createdComponents', foreignKey: 'createdById' });
   Component.belongsTo(User, { as: 'createdBy', foreignKey: 'createdById' });
 

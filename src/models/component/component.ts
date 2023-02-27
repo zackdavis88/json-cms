@@ -9,7 +9,7 @@ import {
   NonAttribute,
 } from 'sequelize';
 import User from 'src/models/user/user';
-import Blueprint from 'src/models/blueprint/blueprint';
+import Blueprint, { BlueprintVersion } from 'src/models/blueprint/blueprint';
 import Project from 'src/models/project/project';
 
 export interface ComponentContent {
@@ -27,7 +27,21 @@ class Component extends Model<
 
   declare blueprint: NonAttribute<Blueprint>;
   declare blueprintId: ForeignKey<Blueprint['id']>;
-  declare blueprintVersion: number;
+
+  declare blueprintVersion: NonAttribute<BlueprintVersion>;
+  declare blueprintVersionId: ForeignKey<BlueprintVersion['id']>;
+  /*
+    TODO:
+    Sequelize has a typescript bug with the 'where' query, you cannot compare with null. For example:
+
+    Model.find({where: {someForeignKey: null}})
+
+    This technically works, but typescript doesnt allow it even if the column has allowNull = true.
+    I'm setting up this blueprintIsCurrent flag as a work around.
+
+    Revisit this in the future and see if the issue has been resolved in a later version.
+  */
+  declare blueprintIsCurrent: CreationOptional<boolean>;
 
   declare project: NonAttribute<Project>;
   declare projectId: ForeignKey<Project['id']>;
@@ -63,8 +77,9 @@ export const initializeComponent = (sequelize: Sequelize) => {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
-      blueprintVersion: {
-        type: DataTypes.INTEGER,
+      blueprintIsCurrent: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
       },
       createdOn: {
         type: DataTypes.DATE,

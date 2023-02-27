@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PaginationData } from 'src/controllers/validation_utils';
-import { User, Component, Blueprint } from 'src/models';
+import { User, Component, Blueprint, BlueprintVersion } from 'src/models';
 import getAllComponentsValidation from './getAllComponentsValidation';
 
 interface ComponentData {
@@ -20,6 +20,7 @@ interface ComponentData {
     id: Blueprint['id'];
     name: Blueprint['name'];
     version: Blueprint['version'];
+    isCurrent: boolean;
   };
 }
 
@@ -44,6 +45,7 @@ const getAllComponents = async (req: Request, res: Response) => {
         { model: User, as: 'createdBy' },
         { model: User, as: 'updatedBy' },
         { model: Blueprint, as: 'blueprint' },
+        { model: BlueprintVersion, as: 'blueprintVersion' },
       ],
     });
 
@@ -66,6 +68,7 @@ const getAllComponents = async (req: Request, res: Response) => {
             id: component.blueprint.id,
             name: component.blueprint.name,
             version: component.blueprint.version,
+            isCurrent: component.blueprintIsCurrent,
           },
         };
 
@@ -80,6 +83,15 @@ const getAllComponents = async (req: Request, res: Response) => {
           componentData.updatedBy = {
             displayName: component.updatedBy.displayName,
             username: component.updatedBy.username,
+          };
+        }
+
+        if (component.blueprintVersion) {
+          componentData.blueprint = {
+            ...componentData.blueprint,
+            name: component.blueprintVersion.name,
+            version: component.blueprintVersion.version,
+            isCurrent: false,
           };
         }
 
