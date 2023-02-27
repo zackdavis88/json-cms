@@ -8,6 +8,7 @@ import {
   Blueprint,
   BlueprintField,
   BlueprintVersion,
+  Component,
 } from '../../src/models';
 import { blueprintCreatePayload, blueprintUpdatePayload } from './data';
 const testHelper = new TestHelper();
@@ -37,6 +38,7 @@ describe('[Blueprint] Update', () => {
     let testProject: Project;
     let testUser: User;
     let testBlueprint: Blueprint;
+    let testComponent: Component;
     let authToken: string;
     let notAuthorizedUser: User;
     let notAuthorizedToken: string;
@@ -56,6 +58,14 @@ describe('[Blueprint] Update', () => {
       });
       authToken = testHelper.generateToken(testUser);
       notAuthorizedToken = testHelper.generateToken(notAuthorizedUser);
+      testComponent = await testProject.createComponent({
+        name: testHelper.generateUUID(),
+        content: {},
+        blueprintId: testBlueprint.id,
+        blueprintIsCurrent: true,
+        createdOn: new Date(),
+        createdById: testUser.id,
+      });
     });
 
     afterAll(async () => {
@@ -675,7 +685,26 @@ describe('[Blueprint] Update', () => {
               removeFieldIds(blueprintVersion.fields),
               testBlueprint.fields,
             );
-            done();
+
+            // Check that existing components had their blueprintVersion updated.
+            Component.findOne({
+              where: { id: testComponent.id },
+              include: { model: BlueprintVersion, as: 'blueprintVersion' },
+            }).then((component) => {
+              if (!component) {
+                return done('test component not found');
+              }
+
+              assert.strictEqual(component.blueprintIsCurrent, false);
+              assert(component.blueprintVersion);
+              assert.strictEqual(component.blueprintVersion.id, blueprintVersion.id);
+              assert.strictEqual(component.blueprintVersion.name, blueprintVersion.name);
+              assert.strictEqual(
+                component.blueprintVersion.version,
+                blueprintVersion.version,
+              );
+              done();
+            });
           });
         });
     });
