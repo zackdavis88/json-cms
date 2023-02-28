@@ -10,5 +10,10 @@ export const componentRoutes = (router: Router) => {
 
   router
     .route('/projects/:projectId/components/:componentId')
-    .all(AuthController.authenticateToken, ProjectController.getRequestedProject);
+    .all(
+      AuthController.authenticateToken,
+      ProjectController.getRequestedProject,
+      ComponentController.getRequestedComponent,
+    )
+    .get(AuthController.authorizeComponentRead, ComponentController.getOne);
 };
