@@ -6,7 +6,7 @@ export const componentRoutes = (router: Router) => {
     .route('/projects/:projectId/components')
     .all(AuthController.authenticateToken, ProjectController.getRequestedProject)
     .post(AuthController.authorizeComponentAction, ComponentController.create)
-    .get(AuthController.authorizeComponentRead, ComponentController.getAll);
+    .get(AuthController.authorizeRead('components'), ComponentController.getAll);
 
   router
     .route('/projects/:projectId/components/:componentId')
@@ -15,7 +15,7 @@ export const componentRoutes = (router: Router) => {
       ProjectController.getRequestedProject,
       ComponentController.getRequestedComponent,
     )
-    .get(AuthController.authorizeComponentRead, ComponentController.getOne)
+    .get(AuthController.authorizeRead('components'), ComponentController.getOne)
     .post(AuthController.authorizeComponentAction, ComponentController.update)
     .delete(AuthController.authorizeComponentAction, ComponentController.remove);
 };

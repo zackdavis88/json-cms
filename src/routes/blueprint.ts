@@ -6,7 +6,7 @@ export const blueprintRoutes = (router: Router) => {
     .route('/projects/:projectId/blueprints')
     .all(AuthController.authenticateToken, ProjectController.getRequestedProject)
     .post(AuthController.authorizeBlueprintAction, BlueprintController.create)
-    .get(AuthController.authorizeBlueprintRead, BlueprintController.getAll);
+    .get(AuthController.authorizeRead('blueprints'), BlueprintController.getAll);
 
   router
     .route('/projects/:projectId/blueprints/:blueprintId')
@@ -16,7 +16,7 @@ export const blueprintRoutes = (router: Router) => {
       BlueprintController.getRequestedBlueprint,
     )
     .get(
-      AuthController.authorizeBlueprintRead,
+      AuthController.authorizeRead('blueprints'),
       BlueprintController.getRequestedVersion,
       BlueprintController.getOne,
     )

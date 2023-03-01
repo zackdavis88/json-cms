@@ -3,9 +3,8 @@ import { authenticateToken } from './authenticateToken';
 import { authorizeUserUpdate } from './authorizeUserUpdate';
 import { authorizeProjectUpdate } from './authorizeProjectUpdate';
 import { authorizeBlueprintAction } from './authorizeBlueprintAction';
-import { authorizeBlueprintRead } from './authorizeBlueprintRead';
 import { authorizeComponentAction } from './authorizeComponentAction';
-import { authorizeComponentRead } from './authorizeComponentRead';
+import { authorizeRead } from './authorizeRead';
 
 export default {
   generateToken,
@@ -13,7 +12,6 @@ export default {
   authorizeUserUpdate,
   authorizeProjectUpdate,
   authorizeBlueprintAction,
-  authorizeBlueprintRead,
   authorizeComponentAction,
-  authorizeComponentRead,
+  authorizeRead,
 };
