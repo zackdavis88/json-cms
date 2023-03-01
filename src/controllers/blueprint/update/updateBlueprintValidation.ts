@@ -1,5 +1,6 @@
 import { BlueprintField } from 'src/models/blueprint';
-import { validateName, validateFields } from 'src/controllers/blueprint/validation_utils';
+import { validateFields } from 'src/controllers/blueprint/validation_utils';
+import { resourceNameValidation as validateName } from 'src/controllers/validation_utils';
 
 type UpdateBlueprintValidation = (
   name: unknown,

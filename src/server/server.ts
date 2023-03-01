@@ -13,6 +13,7 @@ import {
   Project,
   Membership,
   Blueprint,
+  Component,
 } from 'src/models';
 import { configureRoutes } from 'src/routes';
 import { configureResponseHandlers } from './utils';
@@ -26,6 +27,7 @@ declare global {
       requestedProject: Project;
       requestedMembership: Membership;
       requestedBlueprint: Blueprint;
+      requestedComponent: Component;
     }
     interface Response {
       fatalError: (message: string, errorDetails?: BaseError) => Response | undefined;

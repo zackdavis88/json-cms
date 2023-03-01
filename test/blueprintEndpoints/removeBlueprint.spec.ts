@@ -229,7 +229,6 @@ describe('[Blueprint] Remove', () => {
               done();
             },
           );
-          done();
         });
     });
   });

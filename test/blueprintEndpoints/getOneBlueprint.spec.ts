@@ -13,6 +13,7 @@ describe('[Blueprint] Get One', () => {
     let testProject: Project;
     let testUser: User;
     let testBlueprint: Blueprint;
+    let deletedTestBlueprint: Blueprint;
     let authToken: string;
     let notAuthorizedToken: string;
     let testBlueprintVersion: BlueprintVersion;
@@ -38,6 +39,15 @@ describe('[Blueprint] Get One', () => {
             type: 'STRING',
           },
         ],
+      });
+      deletedTestBlueprint = await testProject.createBlueprint({
+        ...blueprintCreatePayload,
+        name: testHelper.generateUUID(),
+        version: 100,
+        createdById: testUser.id,
+        updatedOn: new Date(),
+        updatedById: testUser.id,
+        isActive: false,
       });
       authToken = testHelper.generateToken(testUser);
       notAuthorizedToken = testHelper.generateToken(notAuthorizedUser);
@@ -100,6 +110,18 @@ describe('[Blueprint] Get One', () => {
 
     it('should reject requests when the blueprint is not found', (done) => {
       apiRoute = `/projects/${testProject.id}/blueprints/${testHelper.generateUUID()}`;
+      request(serverUrl).get(apiRoute).set('x-auth-token', authToken).expect(
+        404,
+        {
+          error: 'requested blueprint not found',
+          errorType: ErrorTypes.NOT_FOUND,
+        },
+        done,
+      );
+    });
+
+    it('should reject requests when the blueprint has been deleted', (done) => {
+      apiRoute = `/projects/${testProject.id}/blueprints/${deletedTestBlueprint.id}`;
       request(serverUrl).get(apiRoute).set('x-auth-token', authToken).expect(
         404,
         {

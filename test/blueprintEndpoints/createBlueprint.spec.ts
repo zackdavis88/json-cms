@@ -617,7 +617,6 @@ describe('[Blueprint] Create', () => {
           assert.strictEqual(message, 'blueprint has been successfully created');
           assert(blueprint);
           assert(blueprint.id);
-          testHelper.addTestBlueprintId(blueprint.id);
           assert.strictEqual(blueprint.name, payload.name);
           assert(blueprint.createdOn);
           assert(blueprint.createdBy);

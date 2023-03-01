@@ -11,6 +11,7 @@ import {
 } from 'sequelize';
 import Membership from 'src/models/membership/membership';
 import Blueprint from 'src/models/blueprint/blueprint';
+import Component from 'src/models/component/component';
 
 class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Project>> {
   declare id: CreationOptional<string>;
@@ -28,6 +29,10 @@ class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Pr
   declare createBlueprint: HasManyCreateAssociationMixin<Blueprint>;
   declare getBlueprints: HasManyGetAssociationsMixin<Blueprint>;
   declare countBlueprints: HasManyCountAssociationsMixin;
+
+  declare createComponent: HasManyCreateAssociationMixin<Component>;
+  declare getComponents: HasManyGetAssociationsMixin<Component>;
+  declare countComponents: HasManyCountAssociationsMixin;
 }
 
 export const initializeProject = (sequelize: Sequelize) => {
@@ -50,7 +55,7 @@ export const initializeProject = (sequelize: Sequelize) => {
       },
       createdOn: {
         type: DataTypes.DATE,
-        defaultValue: new Date(),
+        defaultValue: DataTypes.NOW,
       },
       updatedOn: {
         type: DataTypes.DATE,

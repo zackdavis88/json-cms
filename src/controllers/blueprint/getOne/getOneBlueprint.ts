@@ -41,6 +41,7 @@ export const getRequestedBlueprint = async (
       await project.getBlueprints({
         where: {
           id: blueprintId,
+          isActive: true,
         },
         include: [
           { model: User, as: 'createdBy' },
