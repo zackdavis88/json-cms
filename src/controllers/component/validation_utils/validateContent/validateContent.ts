@@ -4,6 +4,7 @@ import reduceContent from './reduceContent';
 type ValidateContent = (
   blueprintFields: Blueprint['fields'],
   content: unknown,
+  isOptional?: boolean,
 ) => { validationError?: string; content: Component['content'] };
 
 const validateContent: ValidateContent = (

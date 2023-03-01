@@ -44,6 +44,10 @@ const createComponentValidation: CreateComponentValidation = async (
     return { validationError: contentError, content: {} };
   }
 
+  if (Object.keys(content).length === 0) {
+    return { validationError: 'content contains no valid fields', content: {} };
+  }
+
   return { blueprint, content };
 };
 

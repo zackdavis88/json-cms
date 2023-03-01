@@ -3,34 +3,34 @@ import assert from 'assert';
 import { TestHelper } from '../utils';
 import { ErrorTypes } from '../../src/server/utils/configureResponseHandlers';
 import request from 'supertest';
-import { Project, User, Blueprint } from '../../src/models';
-import { componentCreatePayload, componentBlueprintPayload } from './data';
+import { Project, User, Blueprint, BlueprintVersion, Component } from '../../src/models';
+import {
+  componentCreatePayload,
+  componentBlueprintPayload,
+  componentUpdatePayload,
+} from './data';
 const testHelper = new TestHelper();
 const serverUrl = testHelper.getServerUrl();
-let apiRoute = '/projects/:projectId/components';
+let apiRoute = '/projects/:projectId/components/:componentId';
 
-/*
-  NOTE: The tests in this file are dependent on the test data used:
-  1. componentBlueprintPayload
-  2. componentCreatePayload
-
-  Switching up these payloads will mean you have to switch up the tests as well.
-*/
-interface CreateComponentPayload {
-  name?: unknown;
-  blueprintId?: unknown;
-  content?: unknown;
+interface UpdateComponentPayload {
+  name: unknown;
+  content: unknown;
 }
 
-describe('[Component] Create', () => {
+describe('[Component] Update', () => {
   describe(`POST ${apiRoute}`, () => {
     let testProject: Project;
     let testUser: User;
-    let testBlueprint: Blueprint;
-    let authToken: string;
     let notAuthorizedUser: User;
+    let testBlueprint: Blueprint;
+    let deletedTestComponent: Component;
+    let authToken: string;
     let notAuthorizedToken: string;
-    let payload: CreateComponentPayload;
+    let testBlueprintVersion: BlueprintVersion;
+    let testComponent: Component;
+    let testComponentWithBlueprintVersion: Component;
+    let payload: UpdateComponentPayload;
 
     beforeAll(async () => {
       testUser = await testHelper.createTestUser();
@@ -39,10 +39,50 @@ describe('[Component] Create', () => {
       testBlueprint = await testProject.createBlueprint({
         ...componentBlueprintPayload,
         name: testHelper.generateUUID(),
-        version: 2,
+        version: 9,
         createdById: testUser.id,
         updatedOn: new Date(),
         updatedById: testUser.id,
+      });
+      testBlueprintVersion = await testBlueprint.createVersion({
+        version: 8,
+        name: 'the name of the blueprint in the past',
+        fields: [
+          {
+            name: 'aFieldFromThePast',
+            type: 'STRING',
+          },
+        ],
+      });
+      testComponent = await testProject.createComponent({
+        ...componentCreatePayload,
+        name: testHelper.generateUUID(),
+        blueprintId: testBlueprint.id,
+        createdById: notAuthorizedUser.id,
+        updatedOn: new Date(),
+        updatedById: notAuthorizedUser.id,
+      });
+      testComponentWithBlueprintVersion = await testProject.createComponent({
+        content: {
+          aFieldFromThePast: 'hello, world!',
+        },
+        name: testHelper.generateUUID(),
+        blueprintId: testBlueprint.id,
+        blueprintVersionId: testBlueprintVersion.id,
+        blueprintIsCurrent: false,
+        createdById: testUser.id,
+        updatedOn: new Date(),
+        updatedById: notAuthorizedUser.id,
+      });
+      deletedTestComponent = await testProject.createComponent({
+        ...componentCreatePayload,
+        name: testHelper.generateUUID(),
+        blueprintId: testBlueprint.id,
+        blueprintIsCurrent: true,
+        createdById: testUser.id,
+        updatedOn: new Date(),
+        updatedById: testUser.id,
+        isActive: false,
       });
       authToken = testHelper.generateToken(testUser);
       notAuthorizedToken = testHelper.generateToken(notAuthorizedUser);
@@ -53,11 +93,8 @@ describe('[Component] Create', () => {
     });
 
     beforeEach(() => {
-      apiRoute = `/projects/${testProject.id}/components`;
-      payload = {
-        ...componentCreatePayload,
-        blueprintId: testBlueprint.id,
-      };
+      apiRoute = `/projects/${testProject.id}/components/${testComponent.id}`;
+      payload = { ...componentUpdatePayload };
     });
 
     it('should reject requests when x-auth-token is missing', (done) => {
@@ -72,7 +109,7 @@ describe('[Component] Create', () => {
     });
 
     it('should reject requests that have an invalid project id', (done) => {
-      apiRoute = '/projects/wrong/components';
+      apiRoute = `/projects/wrong/components/${testComponent.id}`;
       request(serverUrl).post(apiRoute).set('x-auth-token', authToken).expect(
         400,
         {
@@ -84,11 +121,47 @@ describe('[Component] Create', () => {
     });
 
     it('should reject requests when the project is not found', (done) => {
-      apiRoute = `/projects/${testHelper.generateUUID()}/components`;
+      apiRoute = `/projects/${testHelper.generateUUID()}/components/${testComponent.id}`;
       request(serverUrl).post(apiRoute).set('x-auth-token', authToken).expect(
         404,
         {
           error: 'requested project not found',
+          errorType: ErrorTypes.NOT_FOUND,
+        },
+        done,
+      );
+    });
+
+    it('should reject requests that have an invalid component id', (done) => {
+      apiRoute = `/projects/${testProject.id}/components/badId`;
+      request(serverUrl).post(apiRoute).set('x-auth-token', authToken).expect(
+        400,
+        {
+          error: 'requested component id is not valid',
+          errorType: ErrorTypes.VALIDATION,
+        },
+        done,
+      );
+    });
+
+    it('should reject requests when the component is not found', (done) => {
+      apiRoute = `/projects/${testProject.id}/components/${testHelper.generateUUID()}`;
+      request(serverUrl).post(apiRoute).set('x-auth-token', authToken).expect(
+        404,
+        {
+          error: 'requested component not found',
+          errorType: ErrorTypes.NOT_FOUND,
+        },
+        done,
+      );
+    });
+
+    it('should reject requests when the component has been deleted', (done) => {
+      apiRoute = `/projects/${testProject.id}/components/${deletedTestComponent.id}`;
+      request(serverUrl).post(apiRoute).set('x-auth-token', authToken).expect(
+        404,
+        {
+          error: 'requested component not found',
           errorType: ErrorTypes.NOT_FOUND,
         },
         done,
@@ -119,8 +192,8 @@ describe('[Component] Create', () => {
       });
     });
 
-    it('should reject requests when name is missing', (done) => {
-      payload.name = undefined;
+    it('should reject requests when there is no update input', (done) => {
+      payload = { name: undefined, content: undefined };
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -128,7 +201,7 @@ describe('[Component] Create', () => {
         .expect(
           400,
           {
-            error: 'name is missing from input',
+            error: 'input contains no update data',
             errorType: ErrorTypes.VALIDATION,
           },
           done,
@@ -136,7 +209,7 @@ describe('[Component] Create', () => {
     });
 
     it('should reject requests when name is not a string', (done) => {
-      payload.name = { something: 'wrong' };
+      payload.name = 712389745;
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -199,86 +272,6 @@ describe('[Component] Create', () => {
         );
     });
 
-    it('should reject requests when blueprintId is missing', (done) => {
-      payload.blueprintId = undefined;
-      request(serverUrl)
-        .post(apiRoute)
-        .set('x-auth-token', authToken)
-        .send(payload)
-        .expect(
-          400,
-          {
-            error: 'blueprintId is missing from input',
-            errorType: ErrorTypes.VALIDATION,
-          },
-          done,
-        );
-    });
-
-    it('should reject requests when blueprintId is not a string', (done) => {
-      payload.blueprintId = 743824798237;
-      request(serverUrl)
-        .post(apiRoute)
-        .set('x-auth-token', authToken)
-        .send(payload)
-        .expect(
-          400,
-          {
-            error: 'blueprintId must be a string',
-            errorType: ErrorTypes.VALIDATION,
-          },
-          done,
-        );
-    });
-
-    it('should reject requests when blueprintId is not a valid uuid', (done) => {
-      payload.blueprintId = 'this_is_not_a_valid_uuid';
-      request(serverUrl)
-        .post(apiRoute)
-        .set('x-auth-token', authToken)
-        .send(payload)
-        .expect(
-          400,
-          {
-            error: 'blueprintId is not valid',
-            errorType: ErrorTypes.VALIDATION,
-          },
-          done,
-        );
-    });
-
-    it('should reject requests when the blueprint is not found', (done) => {
-      payload.blueprintId = testHelper.generateUUID();
-      request(serverUrl)
-        .post(apiRoute)
-        .set('x-auth-token', authToken)
-        .send(payload)
-        .expect(
-          400,
-          {
-            error: 'blueprint not found',
-            errorType: ErrorTypes.VALIDATION,
-          },
-          done,
-        );
-    });
-
-    it('should reject requests when content is missing', (done) => {
-      payload.content = undefined;
-      request(serverUrl)
-        .post(apiRoute)
-        .set('x-auth-token', authToken)
-        .send(payload)
-        .expect(
-          400,
-          {
-            error: 'content is missing from input',
-            errorType: ErrorTypes.VALIDATION,
-          },
-          done,
-        );
-    });
-
     it('should reject requests when content is not an object', (done) => {
       payload.content = '';
       request(serverUrl)
@@ -297,7 +290,7 @@ describe('[Component] Create', () => {
     });
 
     it('should reject requests when a required content value is missing', (done) => {
-      payload.content = { heroPanel: { timer: { hideTimer: true } } };
+      payload.content = { heroPanel: {} };
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -313,7 +306,7 @@ describe('[Component] Create', () => {
     });
 
     it('should reject requests when string content is not a string', (done) => {
-      payload.content = { heroPanel: { headingText: { desktop: false } } };
+      payload.content = { heroPanel: { headingText: { mobile: false } } };
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -321,7 +314,7 @@ describe('[Component] Create', () => {
         .expect(
           400,
           {
-            error: "headingText field 'desktop' must be a string",
+            error: "headingText field 'mobile' must be a string",
             errorType: ErrorTypes.VALIDATION,
           },
           done,
@@ -330,7 +323,7 @@ describe('[Component] Create', () => {
 
     it('should reject requests when string content does not match optional regex', (done) => {
       payload.content = {
-        heroPanel: { headingText: { desktop: 'this value will fail validation' } },
+        heroPanel: { headingText: { desktop: 'not valid' } },
       };
       request(serverUrl)
         .post(apiRoute)
@@ -349,7 +342,7 @@ describe('[Component] Create', () => {
 
     it('should reject requests when string content length is less than the optional minimum', (done) => {
       payload.content = {
-        heroPanel: { headingText: { tablet: 'bad' } },
+        heroPanel: { headingText: { tablet: 'abcd' } },
       };
       request(serverUrl)
         .post(apiRoute)
@@ -421,7 +414,7 @@ describe('[Component] Create', () => {
 
     it('should reject requests when number content is not an integer when specified', (done) => {
       payload.content = {
-        heroPanel: { headingText: {}, totalSold: 7.2 },
+        heroPanel: { headingText: {}, totalSold: 0.4 },
       };
       request(serverUrl)
         .post(apiRoute)
@@ -457,7 +450,7 @@ describe('[Component] Create', () => {
 
     it('should reject requests when number content is more than the optional maximum', (done) => {
       payload.content = {
-        heroPanel: { headingText: {}, totalSold: 100001 },
+        heroPanel: { headingText: {}, totalSold: 500000 },
       };
       request(serverUrl)
         .post(apiRoute)
@@ -477,7 +470,7 @@ describe('[Component] Create', () => {
       payload.content = {
         heroPanel: {
           headingText: {},
-          timer: { startTime: new Date().toISOString(), endTime: true },
+          timer: { startTime: new Date().toISOString(), endTime: 45678123 },
         },
       };
       request(serverUrl)
@@ -710,7 +703,7 @@ describe('[Component] Create', () => {
         heroPanel: {
           headingText: {},
         },
-        numberArray: ['500'],
+        numberArray: ['999'],
       };
       request(serverUrl)
         .post(apiRoute)
@@ -730,7 +723,7 @@ describe('[Component] Create', () => {
       payload.content = {
         heroPanel: {
           headingText: {},
-          integerArray: [1, 2, 3.4],
+          integerArray: [1, 2, 3.14],
         },
       };
       request(serverUrl)
@@ -752,7 +745,7 @@ describe('[Component] Create', () => {
         heroPanel: {
           headingText: {},
         },
-        numberArray: [0.1],
+        numberArray: [-5],
       };
       request(serverUrl)
         .post(apiRoute)
@@ -773,7 +766,7 @@ describe('[Component] Create', () => {
         heroPanel: {
           headingText: {},
         },
-        numberArray: [0.7, 60.51, 60.6],
+        numberArray: [7, 60.59, 99.8],
       };
       request(serverUrl)
         .post(apiRoute)
@@ -815,7 +808,7 @@ describe('[Component] Create', () => {
         heroPanel: {
           headingText: {},
         },
-        dateArray: ['something_not_a_date'],
+        dateArray: ['not_a_date'],
       };
       request(serverUrl)
         .post(apiRoute)
@@ -855,12 +848,10 @@ describe('[Component] Create', () => {
     });
 
     it('should reject requests where content contains no valid fields', (done) => {
-      payload = {
-        ...payload,
-        content: {
-          somethingNotInTheBlueprint:
-            'when we sanitize content data, this will be removed.',
-        },
+      payload.name = undefined;
+      payload.content = {
+        somethingNotInTheBlueprint:
+          'when we sanitize content data, this will be removed.',
       };
       request(serverUrl)
         .post(apiRoute)
@@ -876,7 +867,30 @@ describe('[Component] Create', () => {
         );
     });
 
-    it('should successfully create a new component', (done) => {
+    it('should use blueprintVersion fields if present for content validation', (done) => {
+      apiRoute = `/projects/${testProject.id}/components/${testComponentWithBlueprintVersion.id}`;
+      payload.name = undefined;
+      payload.content = {
+        aFieldFromThePast: {
+          invalid: true,
+        },
+      };
+      request(serverUrl)
+        .post(apiRoute)
+        .set('x-auth-token', authToken)
+        .send(payload)
+        .expect(
+          400,
+          {
+            error: "content field 'aFieldFromThePast' must be a string",
+            errorType: ErrorTypes.VALIDATION,
+          },
+          done,
+        );
+    });
+
+    it('should successfully update a component', (done) => {
+      apiRoute = `/projects/${testProject.id}/components/${testComponent.id}`;
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -888,28 +902,91 @@ describe('[Component] Create', () => {
           }
 
           const { message, component } = res.body;
-          assert.strictEqual(message, 'component has been successfully created');
-
+          assert.strictEqual(message, 'component has been successfully updated');
           assert(component);
-          const { id, name, content, createdOn, createdBy, blueprint, project } =
-            component;
-          assert(id);
-          assert.strictEqual(name, payload.name);
-          assert.deepStrictEqual(content, payload.content);
-          assert(createdOn);
+          assert.strictEqual(component.id, testComponent.id);
+          assert.strictEqual(component.name, payload.name);
+          assert.deepStrictEqual(component.content, payload.content);
+          assert.strictEqual(component.createdOn, testComponent.createdOn.toISOString());
+          assert(component.updatedOn);
 
-          assert(createdBy);
-          assert.strictEqual(createdBy.displayName, testUser.displayName);
-          assert.strictEqual(createdBy.username, testUser.username);
+          const { project } = component;
+          assert(project);
+          assert.strictEqual(project.id, testProject.id);
+          assert.strictEqual(project.name, testProject.name);
 
+          const { blueprint } = component;
           assert(blueprint);
           assert.strictEqual(blueprint.id, testBlueprint.id);
           assert.strictEqual(blueprint.name, testBlueprint.name);
           assert.strictEqual(blueprint.version, testBlueprint.version);
+          assert.strictEqual(blueprint.isCurrent, true);
 
+          const { createdBy } = component;
+          assert(createdBy);
+          assert.strictEqual(createdBy.displayName, notAuthorizedUser.displayName);
+          assert.strictEqual(createdBy.username, notAuthorizedUser.username);
+
+          const { updatedBy } = component;
+          assert(updatedBy);
+          assert.strictEqual(updatedBy.displayName, testUser.displayName);
+          assert.strictEqual(updatedBy.username, testUser.username);
+
+          done();
+        });
+    });
+
+    it('should successfully update a component that references a blueprint version', (done) => {
+      apiRoute = `/projects/${testProject.id}/components/${testComponentWithBlueprintVersion.id}`;
+      payload = {
+        name: undefined,
+        content: {
+          aFieldFromThePast: 'this has been updated',
+        },
+      };
+      request(serverUrl)
+        .post(apiRoute)
+        .set('x-auth-token', authToken)
+        .send(payload)
+        .expect(200)
+        .end((err, res) => {
+          if (err) {
+            return done(err);
+          }
+
+          const { message, component } = res.body;
+          assert.strictEqual(message, 'component has been successfully updated');
+          assert(component);
+          assert.strictEqual(component.id, testComponentWithBlueprintVersion.id);
+          assert.strictEqual(component.name, testComponentWithBlueprintVersion.name);
+          assert.deepStrictEqual(component.content, payload.content);
+          assert.strictEqual(
+            component.createdOn,
+            testComponentWithBlueprintVersion.createdOn.toISOString(),
+          );
+          assert(component.updatedOn);
+
+          const { project } = component;
           assert(project);
           assert.strictEqual(project.id, testProject.id);
           assert.strictEqual(project.name, testProject.name);
+
+          const { blueprint } = component;
+          assert(blueprint);
+          assert.strictEqual(blueprint.id, testBlueprint.id);
+          assert.strictEqual(blueprint.name, testBlueprintVersion.name);
+          assert.strictEqual(blueprint.version, testBlueprintVersion.version);
+          assert.strictEqual(blueprint.isCurrent, false);
+
+          const { createdBy } = component;
+          assert(createdBy);
+          assert.strictEqual(createdBy.displayName, testUser.displayName);
+          assert.strictEqual(createdBy.username, testUser.username);
+
+          const { updatedBy } = component;
+          assert(updatedBy);
+          assert.strictEqual(updatedBy.displayName, testUser.displayName);
+          assert.strictEqual(updatedBy.username, testUser.username);
 
           done();
         });

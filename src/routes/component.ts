@@ -15,5 +15,6 @@ export const componentRoutes = (router: Router) => {
       ProjectController.getRequestedProject,
       ComponentController.getRequestedComponent,
     )
-    .get(AuthController.authorizeComponentRead, ComponentController.getOne);
+    .get(AuthController.authorizeComponentRead, ComponentController.getOne)
+    .post(AuthController.authorizeComponentAction, ComponentController.update);
 };
