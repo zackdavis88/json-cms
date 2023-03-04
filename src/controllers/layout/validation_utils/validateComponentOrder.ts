@@ -16,32 +16,45 @@ const validateComponentOrder: ValidateComponentOrder = async (componentOrder) =>
       };
     }
 
-    const componentIdError = componentOrder.reduce<string | undefined>(
+    const { validationError: componentIdError, uniqueIds } = componentOrder.reduce<{
+      validationError?: string;
+      uniqueIds: Component['id'][];
+    }>(
       (prev, componentId) => {
-        if (prev) {
+        if (prev.validationError) {
           return prev;
         }
 
         if (typeof componentId !== 'string') {
-          return 'componentOrder contains a componentId that is not a string';
+          return {
+            ...prev,
+            validationError: 'componentOrder contains a componentId that is not a string',
+          };
         }
 
         if (uuidValidation(componentId, 'componentId')) {
-          return 'componentOrder contains a componentId that is not valid';
+          return {
+            ...prev,
+            validationError: 'componentOrder contains a componentId that is not valid',
+          };
+        }
+
+        if (prev.uniqueIds.indexOf(componentId) === -1) {
+          return { uniqueIds: [...prev.uniqueIds, componentId] };
         }
 
         return prev;
       },
-      undefined,
+      { uniqueIds: [] },
     );
     if (componentIdError) {
       return { validationError: componentIdError, components: [] };
     }
 
     const components = await Component.findAll({
-      where: { id: { [Op.in]: componentOrder }, isActive: true },
+      where: { id: { [Op.in]: uniqueIds }, isActive: true },
     });
-    if (components.length !== componentOrder.length) {
+    if (components.length !== uniqueIds.length) {
       return {
         validationError: 'componentOrder contains a component that was not found',
         components: [],
