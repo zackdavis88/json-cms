@@ -7,6 +7,7 @@ import {
   DataTypes,
   ForeignKey,
   NonAttribute,
+  HasManyAddAssociationsMixin,
 } from 'sequelize';
 import User from 'src/models/user/user';
 import Component from 'src/models/component/component';
@@ -32,6 +33,8 @@ class Layout extends Model<InferAttributes<Layout>, InferCreationAttributes<Layo
   declare deletedById: ForeignKey<User['id']> | null;
   declare deletedBy: NonAttribute<User> | null;
   declare deletedOn: CreationOptional<Date> | null;
+
+  declare addComponents: HasManyAddAssociationsMixin<Component, string>;
 }
 
 export class LayoutComponent extends Model<
