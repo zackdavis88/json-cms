@@ -135,11 +135,13 @@ export const initializeModels = (sequelize: Sequelize) => {
   Layout.belongsToMany(Component, {
     foreignKey: 'layoutId',
     through: LayoutComponent,
+    as: 'components',
     onDelete: 'CASCADE',
   });
   Component.belongsToMany(Layout, {
     foreignKey: 'componentId',
     through: LayoutComponent,
+    as: 'layouts',
     onDelete: 'CASCADE',
   });
 };

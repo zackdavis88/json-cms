@@ -34,6 +34,7 @@ class Layout extends Model<InferAttributes<Layout>, InferCreationAttributes<Layo
   declare deletedBy: NonAttribute<User> | null;
   declare deletedOn: CreationOptional<Date> | null;
 
+  declare components: NonAttribute<Component[]>;
   declare addComponents: HasManyAddAssociationsMixin<Component, string>;
 }
 

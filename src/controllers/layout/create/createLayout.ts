@@ -13,11 +13,8 @@ interface LayoutData {
       content: Component['content'];
     };
   };
+  createdOn: Layout['createdOn'];
   createdBy?: {
-    displayName: User['displayName'];
-    username: User['username'];
-  };
-  updatedBy?: {
     displayName: User['displayName'];
     username: User['username'];
   };
