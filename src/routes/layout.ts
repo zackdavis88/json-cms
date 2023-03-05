@@ -6,7 +6,7 @@ export const layoutRoutes = (router: Router) => {
     .route('/projects/:projectId/layouts')
     .all(AuthController.authenticateToken, ProjectController.getRequestedProject)
     .post(AuthController.authorizeLayoutAction, LayoutController.create)
-    .get(AuthController.authorizeRead('layouts'));
+    .get(AuthController.authorizeRead('layouts'), LayoutController.getAll);
 
   router
     .route('/projects/:projectId/layouts/:layoutId')

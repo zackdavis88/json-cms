@@ -1,3 +1,4 @@
 import { create } from './create';
+import { getAll } from './getAll';
 
-export default { create };
+export default { create, getAll };
