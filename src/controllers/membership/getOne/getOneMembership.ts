@@ -21,7 +21,7 @@ export const getRequestedMembership = async (
         where: {
           id: membershipId,
         },
-        include: { model: User, as: 'user' },
+        include: { model: User.scope('publicAttributes'), as: 'user' },
       })
     )[0];
 

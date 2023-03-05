@@ -42,8 +42,8 @@ const getAllComponents = async (req: Request, res: Response) => {
       offset: pageOffset,
       order: [['createdOn', 'ASC']],
       include: [
-        { model: User, as: 'createdBy' },
-        { model: User, as: 'updatedBy' },
+        { model: User.scope('publicAttributes'), as: 'createdBy' },
+        { model: User.scope('publicAttributes'), as: 'updatedBy' },
         { model: Blueprint, as: 'blueprint' },
         { model: BlueprintVersion, as: 'blueprintVersion' },
       ],

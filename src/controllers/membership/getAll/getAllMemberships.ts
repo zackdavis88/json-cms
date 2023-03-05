@@ -19,7 +19,7 @@ const getAllMemberships = async (req: Request, res: Response) => {
       limit: itemsPerPage,
       offset: pageOffset,
       order: [['createdOn', 'ASC']],
-      include: { model: User, as: 'user' },
+      include: { model: User.scope('publicAttributes'), as: 'user' },
     });
 
     const membershipList = {

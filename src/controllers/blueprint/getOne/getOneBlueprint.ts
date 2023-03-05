@@ -44,8 +44,8 @@ export const getRequestedBlueprint = async (
           isActive: true,
         },
         include: [
-          { model: User, as: 'createdBy' },
-          { model: User, as: 'updatedBy' },
+          { model: User.scope('publicAttributes'), as: 'createdBy' },
+          { model: User.scope('publicAttributes'), as: 'updatedBy' },
         ],
       })
     )[0];
