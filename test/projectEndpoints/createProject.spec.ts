@@ -175,6 +175,9 @@ describe('[Project] Create', () => {
           assert.strictEqual(project.name, payload.name);
           assert.strictEqual(project.description, payload.description);
           assert(project.createdOn);
+          assert(project.createdBy);
+          assert.strictEqual(project.createdBy.displayName, testUser.displayName);
+          assert.strictEqual(project.createdBy.username, testUser.username);
           testHelper.addTestProjectId(project.id);
 
           // Validate that a new membership was created for the user performing the request.

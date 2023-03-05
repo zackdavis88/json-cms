@@ -37,6 +37,16 @@ export const initializeModels = (sequelize: Sequelize) => {
   /*  Sequelize is weird. These associations need to be done outside of the model files
    *  and after model initialization because of our code structure.
    */
+  // Project associations
+  User.hasMany(Project, { as: 'createdProjects', foreignKey: 'createdById' });
+  Project.belongsTo(User, { as: 'createdBy', foreignKey: 'createdById' });
+
+  User.hasMany(Project, { as: 'updatedProjects', foreignKey: 'updatedById' });
+  Project.belongsTo(User, { as: 'updatedBy', foreignKey: 'updatedById' });
+
+  User.hasMany(Project, { as: 'deletedProjects', foreignKey: 'deletedById' });
+  Project.belongsTo(User, { as: 'deletedBy', foreignKey: 'deletedById' });
+
   // Membership associations
   User.hasMany(Membership, {
     as: 'memberships',

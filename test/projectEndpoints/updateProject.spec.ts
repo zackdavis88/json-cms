@@ -17,11 +17,12 @@ describe('[Project] Update', () => {
     let authToken: string;
     let notAuthorizedToken: string;
     let notAuthorizedUser: User;
+    let testUser: User;
     let testProject: Project;
     let payload: UpdatePayload;
 
     beforeAll(async () => {
-      const testUser = await testHelper.createTestUser();
+      testUser = await testHelper.createTestUser();
       notAuthorizedUser = await testHelper.createTestUser();
       testProject = await testHelper.createTestProject(testUser);
       authToken = testHelper.generateToken(testUser);
@@ -224,7 +225,14 @@ describe('[Project] Update', () => {
           assert.strictEqual(project.name, payload.name);
           assert.strictEqual(project.description, payload.description);
           assert.strictEqual(project.createdOn, testProject.createdOn.toISOString());
+          assert(project.createdBy);
+          assert.strictEqual(project.createdBy.displayName, testUser.displayName);
+          assert.strictEqual(project.createdBy.username, testUser.username);
+
           assert(project.updatedOn);
+          assert(project.updatedBy);
+          assert.strictEqual(project.updatedBy.displayName, testUser.displayName);
+          assert.strictEqual(project.updatedBy.username, testUser.username);
           done();
         });
     });

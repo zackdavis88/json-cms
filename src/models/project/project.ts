@@ -8,7 +8,10 @@ import {
   HasManyCreateAssociationMixin,
   HasManyGetAssociationsMixin,
   HasManyCountAssociationsMixin,
+  ForeignKey,
+  NonAttribute,
 } from 'sequelize';
+import User from 'src/models/user/user';
 import Membership from 'src/models/membership/membership';
 import Blueprint from 'src/models/blueprint/blueprint';
 import Component from 'src/models/component/component';
@@ -19,9 +22,6 @@ class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Pr
   declare isActive: CreationOptional<boolean>;
   declare name: string;
   declare description: CreationOptional<string> | null;
-  declare createdOn: CreationOptional<Date>;
-  declare updatedOn: CreationOptional<Date> | null;
-  declare deletedOn: CreationOptional<Date> | null;
 
   declare createMembership: HasManyCreateAssociationMixin<Membership>;
   declare getMemberships: HasManyGetAssociationsMixin<Membership>;
@@ -38,6 +38,18 @@ class Project extends Model<InferAttributes<Project>, InferCreationAttributes<Pr
   declare createLayout: HasManyCreateAssociationMixin<Layout>;
   declare getLayouts: HasManyGetAssociationsMixin<Layout>;
   declare countLayouts: HasManyCountAssociationsMixin;
+
+  declare createdById: ForeignKey<User['id']>;
+  declare createdBy: NonAttribute<User>;
+  declare createdOn: CreationOptional<Date>;
+
+  declare updatedById: ForeignKey<User['id']> | null;
+  declare updatedBy: NonAttribute<User> | null;
+  declare updatedOn: CreationOptional<Date> | null;
+
+  declare deletedById: ForeignKey<User['id']> | null;
+  declare deletedBy: NonAttribute<User> | null;
+  declare deletedOn: CreationOptional<Date> | null;
 }
 
 export const initializeProject = (sequelize: Sequelize) => {
