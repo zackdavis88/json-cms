@@ -72,7 +72,7 @@ export class TestHelper {
     this.testUsernames = [];
   }
 
-  async createTestUser(password = 'Password1') {
+  async createTestUser(password = 'Password1', isActive = true) {
     const uuid = this.generateUUID();
     const username = uuid.slice(0, 11);
 
@@ -80,6 +80,7 @@ export class TestHelper {
       username: username.toLowerCase(),
       displayName: username.toUpperCase(),
       hash: User.generateHash(password),
+      isActive,
     });
 
     this.addTestUsername(testUser.username);

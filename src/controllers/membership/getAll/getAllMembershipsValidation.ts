@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { Project } from 'src/models';
+import { Project, Membership, User } from 'src/models';
 import { paginationValidation, PaginationData } from 'src/controllers/validation_utils';
 
 type GetAllMembershipsValidation = (
@@ -11,7 +11,16 @@ const getAllMembershipsValidation: GetAllMembershipsValidation = async (
   project,
   queryString,
 ) => {
-  const membershipCount = await project.countMemberships();
+  const membershipCount = await Membership.count({
+    where: {
+      projectId: project.id,
+    },
+    include: {
+      model: User.scope('publicAttributes'),
+      as: 'user',
+      where: { isActive: true },
+    },
+  });
   return paginationValidation(queryString, membershipCount);
 };
 

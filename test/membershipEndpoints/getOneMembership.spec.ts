@@ -13,14 +13,19 @@ describe('[Membership] Get One', () => {
     let testUser: User;
     let testMembership: Membership;
     let authToken: string;
+    let membershipWithDeletedUser: Membership;
 
     beforeAll(async () => {
       const authUser = await testHelper.createTestUser();
       testUser = await testHelper.createTestUser();
+      const deletedUser = await testHelper.createTestUser('Password1', false);
       testProject = await testHelper.createTestProject(authUser);
       testMembership = await testProject.createMembership({
         userId: testUser.id,
         isFragmentManager: true,
+      });
+      membershipWithDeletedUser = await testProject.createMembership({
+        userId: deletedUser.id,
       });
       authToken = testHelper.generateToken(authUser);
     });
@@ -82,6 +87,18 @@ describe('[Membership] Get One', () => {
 
     it('should reject requests when the membership is not found', (done) => {
       apiRoute = `/projects/${testProject.id}/memberships/${testHelper.generateUUID()}`;
+      request(serverUrl).get(apiRoute).set('x-auth-token', authToken).expect(
+        404,
+        {
+          error: 'requested membership not found',
+          errorType: ErrorTypes.NOT_FOUND,
+        },
+        done,
+      );
+    });
+
+    it('should reject requests when the membership belongs to an inctive user', (done) => {
+      apiRoute = `/projects/${testProject.id}/memberships/${membershipWithDeletedUser.id}`;
       request(serverUrl).get(apiRoute).set('x-auth-token', authToken).expect(
         404,
         {

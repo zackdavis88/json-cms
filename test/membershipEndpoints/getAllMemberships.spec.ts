@@ -21,6 +21,7 @@ describe('[Membership] Get All', () => {
       const testUser3 = await testHelper.createTestUser();
       memberUser = await testHelper.createTestUser();
       const testUser5 = await testHelper.createTestUser();
+      const testUser6 = await testHelper.createTestUser('Password1', false);
       testProject = await testHelper.createTestProject(testUser);
       await testProject.createMembership({ userId: testUser2.id });
       await testProject.createMembership({ userId: testUser3.id });
@@ -29,6 +30,7 @@ describe('[Membership] Get All', () => {
         isFragmentManager: true,
       });
       await testProject.createMembership({ userId: testUser5.id });
+      await testProject.createMembership({ userId: testUser6.id });
       authToken = testHelper.generateToken(testUser);
     });
 

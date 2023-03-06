@@ -45,7 +45,6 @@ const getAllLayouts = async (req: Request, res: Response) => {
           model: User.scope('publicAttributes'),
           as: 'updatedBy',
         },
-        // { model: Component, as: 'components', where: { isActive: true } },
       ],
     });
 
