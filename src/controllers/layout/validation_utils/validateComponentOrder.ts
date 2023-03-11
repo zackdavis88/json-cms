@@ -51,10 +51,17 @@ const validateComponentOrder: ValidateComponentOrder = async (componentOrder) =>
       return { validationError: componentIdError, components: [] };
     }
 
+    if (componentOrder.length !== uniqueIds.length) {
+      return {
+        validationError: 'componentOrder contains duplicate componentId entries',
+        components: [],
+      };
+    }
+
     const components = await Component.findAll({
-      where: { id: { [Op.in]: uniqueIds }, isActive: true },
+      where: { id: { [Op.in]: componentOrder }, isActive: true },
     });
-    if (components.length !== uniqueIds.length) {
+    if (components.length !== componentOrder.length) {
       return {
         validationError: 'componentOrder contains a component that was not found',
         components: [],

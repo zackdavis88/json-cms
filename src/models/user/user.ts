@@ -78,7 +78,7 @@ export const initializeUser = (sequelize: Sequelize) => {
       scopes: {
         publicAttributes: {
           attributes: {
-            exclude: ['id', 'hash', 'apiKey', 'isActive', 'updatedOn', 'deletedOn'],
+            exclude: ['id', 'hash', 'apiKey', 'updatedOn', 'deletedOn'],
           },
         },
       },

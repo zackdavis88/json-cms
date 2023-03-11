@@ -3,7 +3,7 @@ import assert from 'assert';
 import { TestHelper } from '../utils';
 import { ErrorTypes } from '../../src/server/utils/configureResponseHandlers';
 import request from 'supertest';
-import { Project, User, Layout } from '../../src/models';
+import { Project, User, Layout, LayoutComponent } from '../../src/models';
 import { componentPayload1, componentPayload2, componentPayload3 } from './data';
 const testHelper = new TestHelper();
 const serverUrl = testHelper.getServerUrl();
@@ -47,50 +47,61 @@ describe('[Layout] Get All', () => {
       });
       await testProject.createLayout({
         name: 'unit-test-layout-1',
-        componentOrder: [],
         createdById: notAuthorizedUser.id,
       });
       await testProject.createLayout({
         name: 'unit-test-layout-2',
-        componentOrder: [],
         createdById: notAuthorizedUser.id,
       });
       await testProject.createLayout({
         name: 'unit-test-layout-3',
-        componentOrder: [],
         createdById: notAuthorizedUser.id,
       });
       await testProject.createLayout({
         name: 'unit-test-layout-4',
-        componentOrder: [],
         createdById: notAuthorizedUser.id,
       });
       await testProject.createLayout({
         name: 'unit-test-layout-5',
-        componentOrder: [],
         createdById: notAuthorizedUser.id,
       });
       await testProject.createLayout({
         name: 'unit-test-layout-6',
-        componentOrder: [],
         createdById: notAuthorizedUser.id,
       });
+
       testLayout = await testProject.createLayout({
         name: 'unit-test-layout-7',
-        componentOrder: [
-          testComponent1.id,
-          testComponent3.id,
-          testComponent2.id,
-          testComponent1.id,
-        ],
         createdById: notAuthorizedUser.id,
         updatedOn: new Date(),
         updatedById: testUser.id,
       });
+      await LayoutComponent.bulkCreate([
+        {
+          layoutId: testLayout.id,
+          componentId: testComponent1.id,
+          order: 0,
+        },
+        {
+          layoutId: testLayout.id,
+          componentId: testComponent3.id,
+          order: 1,
+        },
+        {
+          layoutId: testLayout.id,
+          componentId: testComponent2.id,
+          order: 2,
+        },
+      ]);
+
       await testProject.createLayout({
         name: 'unit-test-layout-8',
-        componentOrder: [],
         createdById: notAuthorizedUser.id,
+      });
+      await testProject.createLayout({
+        name: 'unit-test-layout-9',
+        isActive: false,
+        createdBy: testUser.id,
       });
       authToken = testHelper.generateToken(testUser);
       notAuthorizedToken = testHelper.generateToken(notAuthorizedUser);
@@ -185,7 +196,7 @@ describe('[Layout] Get All', () => {
           const layout = layouts[1];
           assert.strictEqual(layout.id, testLayout.id);
           assert.strictEqual(layout.name, testLayout.name);
-          assert.strictEqual(layout.totalComponents, testLayout.componentOrder.length);
+          assert.strictEqual(layout.totalComponents, 3);
           assert.strictEqual(layout.createdOn, testLayout.createdOn.toISOString());
           assert.strictEqual(layout.updatedOn, testLayout.updatedOn?.toISOString());
 

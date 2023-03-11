@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { Layout, User, Project, Component } from 'src/models';
+import { Layout, User, Project, Component, LayoutComponent } from 'src/models';
 import createLayoutValidation from './createLayoutValidation';
 
 interface LayoutData {
   id: Layout['id'];
   name: Layout['name'];
-  componentOrder: Layout['componentOrder'];
+  componentOrder: Component['id'][];
   components: {
     [key: Component['id']]: {
       id: Component['id'];
@@ -24,11 +24,19 @@ interface LayoutData {
   };
 }
 
+interface TransformedComponentData {
+  components: LayoutData['components'];
+  layoutComponents: {
+    layoutId: Layout['id'];
+    componentId: Component['id'];
+    order: number;
+  }[];
+}
+
 const createLayout = async (req: Request, res: Response) => {
   const user = req.user;
   const project = req.requestedProject;
   const { name, componentOrder } = req.body;
-
   try {
     const { validationError, components: componentArray } = await createLayoutValidation(
       name,
@@ -38,34 +46,43 @@ const createLayout = async (req: Request, res: Response) => {
       return res.validationError(validationError);
     }
 
-    const components = componentArray.reduce<LayoutData['components']>(
-      (prev, component) => {
-        return {
-          ...prev,
-          [component.id]: {
-            id: component.id,
-            name: component.name,
-            content: component.content,
-          },
-        };
-      },
-      {},
-    );
-
     try {
       const newLayout = await project.createLayout({
         name,
-        componentOrder: componentOrder || [],
         createdById: user.id,
       });
 
-      await newLayout.addComponents(componentArray);
+      const componentData = componentArray.reduce<TransformedComponentData>(
+        (prev, component) => {
+          return {
+            components: {
+              ...prev.components,
+              [component.id]: {
+                id: component.id,
+                name: component.name,
+                content: component.content,
+              },
+            },
+            layoutComponents: prev.layoutComponents.concat({
+              layoutId: newLayout.id,
+              componentId: component.id,
+              order: componentOrder.indexOf(component.id),
+            }),
+          };
+        },
+        {
+          components: {},
+          layoutComponents: [],
+        },
+      );
+
+      await LayoutComponent.bulkCreate(componentData.layoutComponents);
 
       const layoutData = {
         id: newLayout.id,
         name: newLayout.name,
-        componentOrder: newLayout.componentOrder,
-        components,
+        componentOrder: componentOrder,
+        components: componentData.components,
         project: {
           id: project.id,
           name: project.name,
@@ -76,7 +93,6 @@ const createLayout = async (req: Request, res: Response) => {
           username: user.username,
         },
       };
-
       res.success('layout has been successfully created', { layout: layoutData });
     } catch {
       res.fatalError('fatal error while creating layout');

@@ -7,7 +7,6 @@ import {
   DataTypes,
   ForeignKey,
   NonAttribute,
-  HasManyAddAssociationsMixin,
 } from 'sequelize';
 import User from 'src/models/user/user';
 import Component from 'src/models/component/component';
@@ -17,7 +16,6 @@ class Layout extends Model<InferAttributes<Layout>, InferCreationAttributes<Layo
   declare id: CreationOptional<string>;
   declare name: string;
   declare isActive: CreationOptional<boolean>;
-  declare componentOrder: Component['id'][];
 
   declare project: NonAttribute<Project>;
   declare projectId: ForeignKey<Project['id']>;
@@ -35,15 +33,15 @@ class Layout extends Model<InferAttributes<Layout>, InferCreationAttributes<Layo
   declare deletedOn: CreationOptional<Date> | null;
 
   declare components: NonAttribute<Component[]>;
-  declare addComponents: HasManyAddAssociationsMixin<Component, string>;
 }
 
 export class LayoutComponent extends Model<
   InferAttributes<LayoutComponent>,
   InferCreationAttributes<LayoutComponent>
 > {
-  declare layoutId: ForeignKey<Layout>;
-  declare componentId: ForeignKey<Component>;
+  declare layoutId: ForeignKey<Layout['id']>;
+  declare componentId: ForeignKey<Component['id']>;
+  declare order: number;
 }
 
 export const initializeLayout = (sequelize: Sequelize) => {
@@ -60,10 +58,6 @@ export const initializeLayout = (sequelize: Sequelize) => {
       isActive: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
-      },
-      componentOrder: {
-        type: DataTypes.ARRAY(DataTypes.UUID),
-        defaultValue: [],
       },
       createdOn: {
         type: DataTypes.DATE,
@@ -87,6 +81,9 @@ export const initializeLayout = (sequelize: Sequelize) => {
       componentId: {
         type: DataTypes.UUID,
         primaryKey: true,
+      },
+      order: {
+        type: DataTypes.INTEGER,
       },
     },
     { sequelize, tableName: 'layout_components', timestamps: false },

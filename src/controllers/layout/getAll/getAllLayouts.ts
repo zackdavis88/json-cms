@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PaginationData } from 'src/controllers/validation_utils';
-import { User, Layout } from 'src/models';
+import { User, Layout, LayoutComponent } from 'src/models';
 import getAllLayoutsValidation from './getAllLayoutsValidation';
 
 interface LayoutData {
@@ -35,7 +35,6 @@ const getAllLayouts = async (req: Request, res: Response) => {
       where: { isActive: true },
       limit: itemsPerPage,
       offset: pageOffset,
-      order: [['createdOn', 'ASC']],
       include: [
         {
           model: User.scope('publicAttributes'),
@@ -45,6 +44,15 @@ const getAllLayouts = async (req: Request, res: Response) => {
           model: User.scope('publicAttributes'),
           as: 'updatedBy',
         },
+        {
+          model: LayoutComponent,
+          as: 'components',
+          required: false,
+        },
+      ],
+      order: [
+        ['createdOn', 'ASC'],
+        ['components', 'order', 'ASC'],
       ],
     });
 
@@ -63,7 +71,7 @@ const getAllLayouts = async (req: Request, res: Response) => {
           name: layout.name,
           createdOn: layout.createdOn,
           updatedOn: layout.updatedOn,
-          totalComponents: layout.componentOrder.length,
+          totalComponents: layout.components.length,
         };
 
         if (layout.createdBy) {

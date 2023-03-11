@@ -76,12 +76,7 @@ describe('[Layout] Create', () => {
       apiRoute = `/projects/${testProject.id}/layouts`;
       payload = {
         name: 'unit-test-layout-create',
-        componentOrder: [
-          testComponent2.id,
-          testComponent1.id,
-          testComponent3.id,
-          testComponent1.id,
-        ],
+        componentOrder: [testComponent2.id, testComponent1.id, testComponent3.id],
       };
     });
 
@@ -276,12 +271,24 @@ describe('[Layout] Create', () => {
         );
     });
 
+    it('should reject requests when componentOrder contains duplicate componentId entries', (done) => {
+      payload.componentOrder = [testComponent1.id, testComponent1.id];
+      request(serverUrl)
+        .post(apiRoute)
+        .set('x-auth-token', authToken)
+        .send(payload)
+        .expect(
+          400,
+          {
+            error: 'componentOrder contains duplicate componentId entries',
+            errorType: ErrorTypes.VALIDATION,
+          },
+          done,
+        );
+    });
+
     it('should reject requests when componentOrder contains an item that is not found', (done) => {
-      payload.componentOrder = [
-        testComponent1.id,
-        testComponent1.id,
-        deletedTestComponent.id,
-      ];
+      payload.componentOrder = [testComponent1.id, deletedTestComponent.id];
       request(serverUrl)
         .post(apiRoute)
         .set('x-auth-token', authToken)
@@ -333,11 +340,6 @@ describe('[Layout] Create', () => {
           assert.strictEqual(thirdComponent.id, testComponent3.id);
           assert.strictEqual(thirdComponent.name, testComponent3.name);
           assert.deepStrictEqual(thirdComponent.content, testComponent3.content);
-
-          const fourthComponent = layout.components[layout.componentOrder[3]];
-          assert.strictEqual(fourthComponent.id, testComponent1.id);
-          assert.strictEqual(fourthComponent.name, testComponent1.name);
-          assert.deepStrictEqual(fourthComponent.content, testComponent1.content);
 
           done();
         });

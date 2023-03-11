@@ -142,17 +142,25 @@ export const initializeModels = (sequelize: Sequelize) => {
   User.hasMany(Layout, { as: 'deletedLayouts', foreignKey: 'deletedById' });
   Layout.belongsTo(User, { as: 'deletedBy', foreignKey: 'deletedById' });
 
-  Layout.belongsToMany(Component, {
-    foreignKey: 'layoutId',
-    through: LayoutComponent,
+  // LayoutComponent associations
+  Layout.hasMany(LayoutComponent, {
     as: 'components',
+    foreignKey: 'layoutId',
     onDelete: 'CASCADE',
   });
-  Component.belongsToMany(Layout, {
-    foreignKey: 'componentId',
-    through: LayoutComponent,
+  LayoutComponent.belongsTo(Layout, {
+    foreignKey: 'layoutId',
+    as: 'layout',
+  });
+
+  Component.hasMany(LayoutComponent, {
     as: 'layouts',
+    foreignKey: 'componentId',
     onDelete: 'CASCADE',
+  });
+  LayoutComponent.belongsTo(Component, {
+    foreignKey: 'componentId',
+    as: 'component',
   });
 };
 
