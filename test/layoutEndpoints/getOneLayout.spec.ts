@@ -103,7 +103,7 @@ describe('[Layout] Get One', () => {
     });
 
     it('should reject requests that have an invalid project id', (done) => {
-      apiRoute = '/projects/wrong/layouts';
+      apiRoute = `/projects/wrong/layouts/${testLayout.id}`;
       request(serverUrl).get(apiRoute).set('x-auth-token', authToken).expect(
         400,
         {
@@ -115,7 +115,7 @@ describe('[Layout] Get One', () => {
     });
 
     it('should reject requests when the project is not found', (done) => {
-      apiRoute = `/projects/${testHelper.generateUUID()}/layouts`;
+      apiRoute = `/projects/${testHelper.generateUUID()}/layouts/${testLayout.id}`;
       request(serverUrl).get(apiRoute).set('x-auth-token', authToken).expect(
         404,
         {
