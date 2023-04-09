@@ -32,7 +32,7 @@ class Layout extends Model<InferAttributes<Layout>, InferCreationAttributes<Layo
   declare deletedBy: NonAttribute<User> | null;
   declare deletedOn: CreationOptional<Date> | null;
 
-  declare components: NonAttribute<Component[]>;
+  declare components: NonAttribute<LayoutComponent[]>;
 }
 
 export class LayoutComponent extends Model<
@@ -42,6 +42,8 @@ export class LayoutComponent extends Model<
   declare layoutId: ForeignKey<Layout['id']>;
   declare componentId: ForeignKey<Component['id']>;
   declare order: number;
+
+  declare component: NonAttribute<Component>;
 }
 
 export const initializeLayout = (sequelize: Sequelize) => {

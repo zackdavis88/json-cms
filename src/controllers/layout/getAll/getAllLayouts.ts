@@ -94,7 +94,6 @@ const getAllLayouts = async (req: Request, res: Response) => {
 
     return res.success('layout list has been successfully retrieved', layoutList);
   } catch (error) {
-    console.log(error);
     return res.fatalError('fatal error while getting layout list');
   }
 };

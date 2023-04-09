@@ -10,8 +10,12 @@ export const layoutRoutes = (router: Router) => {
 
   router
     .route('/projects/:projectId/layouts/:layoutId')
-    .all(AuthController.authenticateToken, ProjectController.getRequestedProject)
-    .get(AuthController.authorizeRead('layouts'))
+    .all(
+      AuthController.authenticateToken,
+      ProjectController.getRequestedProject,
+      LayoutController.getRequestedLayout,
+    )
+    .get(AuthController.authorizeRead('layouts'), LayoutController.getOne)
     .post(AuthController.authorizeLayoutAction)
     .delete(AuthController.authorizeLayoutAction);
 };
