@@ -2,7 +2,7 @@ import assert from 'assert';
 import { TestHelper } from '../utils';
 import { ErrorTypes } from '../../src/server/utils/configureResponseHandlers';
 import request from 'supertest';
-import { Project, User, Blueprint, Component } from '../../src/models';
+import { Project, User, Blueprint, Component, LayoutComponent } from '../../src/models';
 import { componentCreatePayload, componentBlueprintPayload } from './data';
 const testHelper = new TestHelper();
 const serverUrl = testHelper.getServerUrl();
@@ -56,6 +56,15 @@ describe('[Component] Remove', () => {
       });
       authToken = testHelper.generateToken(testUser);
       notAuthorizedToken = testHelper.generateToken(notAuthorizedUser);
+      const newLayout = await testProject.createLayout({
+        name: testHelper.generateUUID(),
+        createdById: testUser.id,
+      });
+      await LayoutComponent.create({
+        layoutId: newLayout.id,
+        componentId: testComponent.id,
+        order: 0,
+      });
     });
 
     afterAll(async () => {
@@ -273,7 +282,12 @@ describe('[Component] Remove', () => {
                 componentInDatabase.deletedOn?.toISOString(),
               );
               assert.strictEqual(componentInDatabase.isActive, false);
-              done();
+              LayoutComponent.findAll({ where: { componentId: testComponent.id } }).then(
+                (layoutComponents) => {
+                  assert.strictEqual(layoutComponents.length, 0);
+                  done();
+                },
+              );
             },
           );
         });
