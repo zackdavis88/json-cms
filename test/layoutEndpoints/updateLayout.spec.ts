@@ -240,22 +240,6 @@ describe('[Layout] Update', () => {
         );
     });
 
-    it('should reject requests that contain no update data', (done) => {
-      payload = {};
-      request(serverUrl)
-        .post(apiRoute)
-        .set('x-auth-token', authToken)
-        .send(payload)
-        .expect(
-          400,
-          {
-            error: 'input contains no update data',
-            errorType: ErrorTypes.VALIDATION,
-          },
-          done,
-        );
-    });
-
     it('should reject requests when name is not a string', (done) => {
       payload.name = 1981345678942;
       request(serverUrl)

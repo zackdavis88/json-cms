@@ -17,5 +17,5 @@ export const layoutRoutes = (router: Router) => {
     )
     .get(AuthController.authorizeRead('layouts'), LayoutController.getOne)
     .post(AuthController.authorizeLayoutAction, LayoutController.update)
-    .delete(AuthController.authorizeLayoutAction);
+    .delete(AuthController.authorizeLayoutAction, LayoutController.remove);
 };
