@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { Project } from 'src/models';
+import { Project, User } from 'src/models';
 import { uuidValidation } from 'src/controllers/validation_utils';
 
 export const getRequestedProject = async (
@@ -20,6 +20,10 @@ export const getRequestedProject = async (
         id: projectId,
         isActive: true,
       },
+      include: [
+        { model: User.scope('publicAttributes'), as: 'createdBy' },
+        { model: User.scope('publicAttributes'), as: 'updatedBy' },
+      ],
     });
 
     if (!project) {
@@ -44,6 +48,14 @@ const getOneProject = async (req: Request, res: Response) => {
         createdOn: project.createdOn,
         updatedOn: project.updatedOn,
         membershipsCount: await project.countMemberships(),
+        createdBy: project.createdBy ? {
+          displayName: project.createdBy.displayName,
+          username: project.createdBy.username,
+        } : undefined,
+        updatedBy: project.updatedBy ? {
+          displayName: project.updatedBy.displayName,
+          username: project.updatedBy.username,
+        } : undefined,
       },
     };
 

@@ -15,6 +15,7 @@ const createProject = async (req: Request, res: Response) => {
     const project = await Project.create({
       name,
       description: description || null,
+      createdById: user.id,
     });
 
     await project.createMembership({
@@ -28,6 +29,10 @@ const createProject = async (req: Request, res: Response) => {
         name: project.name,
         description: project.description,
         createdOn: project.createdOn,
+        createdBy: {
+          displayName: user.displayName,
+          username: user.username,
+        },
       },
     };
 

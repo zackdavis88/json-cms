@@ -14,6 +14,8 @@ import {
   initializeComponent,
 } from './component';
 
+import { Layout, LayoutComponent, initializeLayout } from './layout';
+
 const synchronizeTables = async (sequelize: Sequelize) => {
   try {
     await sequelize.sync();
@@ -30,10 +32,21 @@ export const initializeModels = (sequelize: Sequelize) => {
   initializeMembership(sequelize);
   initializeBlueprint(sequelize);
   initializeComponent(sequelize);
+  initializeLayout(sequelize);
 
   /*  Sequelize is weird. These associations need to be done outside of the model files
    *  and after model initialization because of our code structure.
    */
+  // Project associations
+  User.hasMany(Project, { as: 'createdProjects', foreignKey: 'createdById' });
+  Project.belongsTo(User, { as: 'createdBy', foreignKey: 'createdById' });
+
+  User.hasMany(Project, { as: 'updatedProjects', foreignKey: 'updatedById' });
+  Project.belongsTo(User, { as: 'updatedBy', foreignKey: 'updatedById' });
+
+  User.hasMany(Project, { as: 'deletedProjects', foreignKey: 'deletedById' });
+  Project.belongsTo(User, { as: 'deletedBy', foreignKey: 'deletedById' });
+
   // Membership associations
   User.hasMany(Membership, {
     as: 'memberships',
@@ -111,6 +124,44 @@ export const initializeModels = (sequelize: Sequelize) => {
     onDelete: 'CASCADE',
   });
   Component.belongsTo(Project, { as: 'project', foreignKey: 'projectId' });
+
+  // Layout associations
+  Project.hasMany(Layout, {
+    as: 'layouts',
+    foreignKey: 'projectId',
+    onDelete: 'CASCADE',
+  });
+  Layout.belongsTo(Project, { as: 'project', foreignKey: 'projectId' });
+
+  User.hasMany(Layout, { as: 'createdLayouts', foreignKey: 'createdById' });
+  Layout.belongsTo(User, { as: 'createdBy', foreignKey: 'createdById' });
+
+  User.hasMany(Layout, { as: 'updatedLayouts', foreignKey: 'updatedById' });
+  Layout.belongsTo(User, { as: 'updatedBy', foreignKey: 'updatedById' });
+
+  User.hasMany(Layout, { as: 'deletedLayouts', foreignKey: 'deletedById' });
+  Layout.belongsTo(User, { as: 'deletedBy', foreignKey: 'deletedById' });
+
+  // LayoutComponent associations
+  Layout.hasMany(LayoutComponent, {
+    as: 'components',
+    foreignKey: 'layoutId',
+    onDelete: 'CASCADE',
+  });
+  LayoutComponent.belongsTo(Layout, {
+    foreignKey: 'layoutId',
+    as: 'layout',
+  });
+
+  Component.hasMany(LayoutComponent, {
+    as: 'layouts',
+    foreignKey: 'componentId',
+    onDelete: 'CASCADE',
+  });
+  LayoutComponent.belongsTo(Component, {
+    foreignKey: 'componentId',
+    as: 'component',
+  });
 };
 
 export const initializeModelsAndSync = async (sequelize: Sequelize) => {
@@ -123,5 +174,6 @@ export { Project } from './project';
 export { Membership } from './membership';
 export { Blueprint, BlueprintVersion, FieldTypes } from './blueprint';
 export { Component } from './component';
+export { Layout, LayoutComponent } from './layout';
 export type BlueprintField = _BlueprintField;
 export type ComponentContent = _ComponentContent;

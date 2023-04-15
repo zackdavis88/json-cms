@@ -14,6 +14,7 @@ import {
   Membership,
   Blueprint,
   Component,
+  Layout,
 } from 'src/models';
 import { configureRoutes } from 'src/routes';
 import { configureResponseHandlers } from './utils';
@@ -28,6 +29,7 @@ declare global {
       requestedMembership: Membership;
       requestedBlueprint: Blueprint;
       requestedComponent: Component;
+      requestedLayout: Layout;
     }
     interface Response {
       fatalError: (message: string, errorDetails?: BaseError) => Response | undefined;

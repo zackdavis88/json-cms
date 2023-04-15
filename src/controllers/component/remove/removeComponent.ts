@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Component, Project, Blueprint, User } from 'src/models';
+import { Component, Project, Blueprint, User, LayoutComponent } from 'src/models';
 import removeComponentValidation from './removeComponentValidation';
 
 interface ComponentData {
@@ -52,6 +52,9 @@ const removeComponent = async (req: Request, res: Response) => {
   } catch (error) {
     return res.fatalError('fatal error while removing component');
   }
+
+  // We need to remove any LayoutComponents that were associated with this component being removed.
+  await LayoutComponent.destroy({ where: { componentId: component.id } });
 
   const componentData: ComponentData = {
     id: component.id,

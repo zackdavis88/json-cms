@@ -13,7 +13,7 @@ const getAllUsers = async (req: Request, res: Response) => {
 
   try {
     const { itemsPerPage, pageOffset, page, totalItems, totalPages } = paginationData;
-    const users = await User.findAll({
+    const users = await User.scope('publicAttributes').findAll({
       where: { isActive: true },
       limit: itemsPerPage,
       offset: pageOffset,

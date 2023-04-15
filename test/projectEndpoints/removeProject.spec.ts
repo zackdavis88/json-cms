@@ -15,12 +15,13 @@ describe('[Project] Remove', () => {
   describe(`DELETE ${apiRoute}`, () => {
     let authToken: string;
     let notAuthorizedToken: string;
+    let testUser: User;
     let notAuthorizedUser: User;
     let testProject: Project;
     let payload: RemovePayload;
 
     beforeAll(async () => {
-      const testUser = await testHelper.createTestUser();
+      testUser = await testHelper.createTestUser();
       notAuthorizedUser = await testHelper.createTestUser();
       testProject = await testHelper.createTestProject(testUser);
       authToken = testHelper.generateToken(testUser);
@@ -166,7 +167,13 @@ describe('[Project] Remove', () => {
           assert.strictEqual(project.name, testProject.name);
           assert.strictEqual(project.description, testProject.description);
           assert.strictEqual(project.createdOn, testProject.createdOn.toISOString());
+          assert(project.createdBy);
+          assert.strictEqual(project.createdBy.displayName, testUser.displayName);
+          assert.strictEqual(project.createdBy.username, testUser.username);
 
+          assert(project.deletedBy);
+          assert.strictEqual(project.deletedBy.displayName, testUser.displayName);
+          assert.strictEqual(project.deletedBy.username, testUser.username);
           // Validate that isActive is set to false in the database.
           Project.findOne({ where: { id: testProject.id } }).then((projectInDatabase) => {
             if (!projectInDatabase) {
@@ -176,6 +183,7 @@ describe('[Project] Remove', () => {
               project.deletedOn,
               projectInDatabase.deletedOn?.toISOString(),
             );
+            assert.strictEqual(projectInDatabase.deletedById, testUser.id);
             assert.strictEqual(projectInDatabase.isActive, false);
             done();
           });

@@ -5,6 +5,7 @@ import { projectRoutes } from './project';
 import { membershipRoutes } from './membership';
 import { blueprintRoutes } from './blueprint';
 import { componentRoutes } from './component';
+import { layoutRoutes } from './layout';
 
 export const configureRoutes = (router: Router) => {
   authRoutes(router);
@@ -13,4 +14,5 @@ export const configureRoutes = (router: Router) => {
   membershipRoutes(router);
   blueprintRoutes(router);
   componentRoutes(router);
+  layoutRoutes(router);
 };

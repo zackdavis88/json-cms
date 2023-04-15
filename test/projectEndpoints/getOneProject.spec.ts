@@ -2,7 +2,7 @@ import assert from 'assert';
 import { TestHelper } from '../utils';
 import { ErrorTypes } from '../../src/server/utils/configureResponseHandlers';
 import request from 'supertest';
-import { Project } from '../../src/models';
+import { Project, User } from '../../src/models';
 const testHelper = new TestHelper();
 const serverUrl = testHelper.getServerUrl();
 let apiRoute = '/projects/:projectId';
@@ -11,9 +11,10 @@ describe('[Project] Get One', () => {
   describe(`GET ${apiRoute}`, () => {
     let authToken: string;
     let testProject: Project;
+    let testUser: User;
 
     beforeAll(async () => {
-      const testUser = await testHelper.createTestUser();
+      testUser = await testHelper.createTestUser();
       authToken = testHelper.generateToken(testUser);
       testProject = await testHelper.createTestProject(testUser);
     });
@@ -78,6 +79,9 @@ describe('[Project] Get One', () => {
           assert.strictEqual(project.name, testProject.name);
           assert.strictEqual(project.description, testProject.description);
           assert.strictEqual(project.createdOn, testProject.createdOn.toISOString());
+          assert(project.createdBy);
+          assert.strictEqual(project.createdBy.displayName, testUser.displayName);
+          assert.strictEqual(project.createdBy.username, testUser.username);
           assert.strictEqual(project.membershipsCount, 1);
           done();
         });

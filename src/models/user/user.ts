@@ -75,6 +75,13 @@ export const initializeUser = (sequelize: Sequelize) => {
       sequelize,
       tableName: 'users',
       timestamps: false,
+      scopes: {
+        publicAttributes: {
+          attributes: {
+            exclude: ['id', 'hash', 'apiKey', 'updatedOn', 'deletedOn'],
+          },
+        },
+      },
     },
   );
 };
